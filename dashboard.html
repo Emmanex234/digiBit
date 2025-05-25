@@ -84,10 +84,10 @@
         </div>
         <div class="p-4 border-t border-blue-800">
           <div class="flex items-center">
-            <img class="w-10 h-10 rounded-full mr-3" src="https://randomuser.me/api/portraits/men/32.jpg" alt="User">
+            <img id="sidebar-profile-img" class="w-10 h-10 rounded-full mr-3" src="https://randomuser.me/api/portraits/men/32.jpg" alt="User">
             <div>
-              <p class="text-sm font-medium text-white">John Doe</p>
-              <p class="text-xs text-blue-200">john@example.com</p>
+              <p id="sidebar-profile-name" class="text-sm font-medium text-white">Loading...</p>
+              <p id="sidebar-profile-email" class="text-xs text-blue-200">Loading...</p>
             </div>
           </div>
         </div>
@@ -112,12 +112,19 @@
             </svg>
           </button>
           <div class="relative">
-            <button class="flex items-center space-x-2 focus:outline-none">
-              <img class="w-8 h-8 rounded-full" src="https://randomuser.me/api/portraits/men/32.jpg" alt="User">
-              <span class="hidden md:inline text-sm font-medium text-gray-700">John Doe</span>
+            <button id="profile-menu-button" class="flex items-center space-x-2 focus:outline-none">
+              <img id="topnav-profile-img" class="w-8 h-8 rounded-full" src="https://randomuser.me/api/portraits/men/32.jpg" alt="User">
+              <span id="topnav-profile-name" class="hidden md:inline text-sm font-medium text-gray-700">Loading...</span>
             </button>
+            <!-- Profile dropdown -->
+            <div id="profile-menu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
+              <a href="#" onclick="yourProfile()" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Your Profile</a>
+              <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Settings</a>
+              <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" id="logout-btn">Sign out</a>
+            </div>
           </div>
         </div>
+        
       </div>
 
       <!-- Main Content Area -->
@@ -126,10 +133,10 @@
         <div class="gradient-bg text-white rounded-xl p-6 mb-6 shadow-lg animate__animated animate__fadeInDown">
           <div class="flex flex-col md:flex-row md:items-center md:justify-between">
             <div>
-              <h2 class="text-2xl font-bold mb-2">Welcome back, John!</h2>
+              <h2 id="welcome-message" class="text-2xl font-bold mb-2">Welcome back, Loading...</h2>
               <p class="text-blue-100">Track your investments and grow your portfolio</p>
             </div>
-            <button class="mt-4 md:mt-0 bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold py-2 px-6 rounded-lg transition duration-300 transform hover:scale-105">
+            <button id="quick-deposit-btn" class="mt-4 md:mt-0 bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold py-2 px-6 rounded-lg transition duration-300 transform hover:scale-105">
               Quick Deposit
             </button>
           </div>
@@ -148,12 +155,12 @@
               </div>
             </div>
             <div class="flex items-end">
-              <p class="text-3xl font-bold text-gray-900">$24,568.00</p>
-              <span class="ml-2 text-sm text-green-500 flex items-center">
+              <p id="total-balance" class="text-3xl font-bold text-gray-900">$0.00</p>
+              <span id="balance-change" class="ml-2 text-sm text-green-500 flex items-center">
                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
                 </svg>
-                5.2%
+                0%
               </span>
             </div>
             <p class="text-sm text-gray-500 mt-2">Compared to last month</p>
@@ -170,15 +177,15 @@
               </div>
             </div>
             <div class="flex items-end">
-              <p class="text-3xl font-bold text-gray-900">$18,245.00</p>
-              <span class="ml-2 text-sm text-green-500 flex items-center">
+              <p id="active-investments" class="text-3xl font-bold text-gray-900">$0.00</p>
+              <span id="investment-change" class="ml-2 text-sm text-green-500 flex items-center">
                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
                 </svg>
-                12.7%
+                0%
               </span>
             </div>
-            <p class="text-sm text-gray-500 mt-2">5 active plans</p>
+            <p id="active-plans-count" class="text-sm text-gray-500 mt-2">0 active plans</p>
           </div>
 
           <!-- KYC Verification Card -->
@@ -195,16 +202,16 @@
               <div class="relative w-16 h-16 mr-4">
                 <svg class="w-16 h-16" viewBox="0 0 36 36">
                   <circle cx="18" cy="18" r="16" fill="none" class="stroke-current text-gray-200" stroke-width="2"></circle>
-                  <circle cx="18" cy="18" r="16" fill="none" class="stroke-current text-green-500" stroke-width="2" stroke-dasharray="100" stroke-dashoffset="25"></circle>
+                  <circle id="kyc-progress-ring" cx="18" cy="18" r="16" fill="none" class="stroke-current text-green-500" stroke-width="2" stroke-dasharray="100" stroke-dashoffset="100"></circle>
                 </svg>
                 <div class="absolute inset-0 flex items-center justify-center">
-                  <span class="text-sm font-bold text-gray-700">75%</span>
+                  <span id="kyc-percent" class="text-sm font-bold text-gray-700">0%</span>
                 </div>
               </div>
               <div>
-                <p class="text-sm text-gray-600 mb-2">Verification in progress</p>
-                <button class="text-sm bg-blue-600 hover:bg-blue-700 text-white py-1 px-3 rounded-lg transition">
-                  Complete Now
+                <p id="kyc-status" class="text-sm text-gray-600 mb-2">Verification not started</p>
+                <button id="start-kyc-btn" class="text-sm bg-blue-600 hover:bg-blue-700 text-white py-1 px-3 rounded-lg transition">
+                  Start Verification
                 </button>
               </div>
             </div>
@@ -221,66 +228,14 @@
                 <a href="#" class="text-sm text-blue-600 hover:text-blue-800">View All</a>
               </div>
             </div>
-            <div class="divide-y divide-gray-200">
-              <!-- Transaction 1 -->
-              <div class="p-6 flex items-center justify-between hover:bg-gray-50 transition">
-                <div class="flex items-center">
-                  <div class="p-3 bg-green-100 rounded-lg mr-4">
-                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                  </div>
-                  <div>
-                    <p class="font-medium text-gray-900">Deposit</p>
-                    <p class="text-sm text-gray-500">Today, 10:45 AM</p>
-                  </div>
-                </div>
-                <div class="text-right">
-                  <p class="font-medium text-green-600">+$5,000.00</p>
-                  <p class="text-sm text-gray-500">Completed</p>
-                </div>
-              </div>
-              
-              <!-- Transaction 2 -->
-              <div class="p-6 flex items-center justify-between hover:bg-gray-50 transition">
-                <div class="flex items-center">
-                  <div class="p-3 bg-blue-100 rounded-lg mr-4">
-                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                  </div>
-                  <div>
-                    <p class="font-medium text-gray-900">Investment</p>
-                    <p class="text-sm text-gray-500">Yesterday, 2:30 PM</p>
-                  </div>
-                </div>
-                <div class="text-right">
-                  <p class="font-medium text-red-600">-$2,500.00</p>
-                  <p class="text-sm text-gray-500">Active</p>
-                </div>
-              </div>
-              
-              <!-- Transaction 3 -->
-              <div class="p-6 flex items-center justify-between hover:bg-gray-50 transition">
-                <div class="flex items-center">
-                  <div class="p-3 bg-yellow-100 rounded-lg mr-4">
-                    <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                  </div>
-                  <div>
-                    <p class="font-medium text-gray-900">Dividend</p>
-                    <p class="text-sm text-gray-500">Mar 15, 9:20 AM</p>
-                  </div>
-                </div>
-                <div class="text-right">
-                  <p class="font-medium text-green-600">+$342.50</p>
-                  <p class="text-sm text-gray-500">Completed</p>
-                </div>
+            <div class="divide-y divide-gray-200" id="transactions-list">
+              <!-- Transactions will be loaded here dynamically -->
+              <div class="p-6 text-center text-gray-500">
+                Loading transactions...
               </div>
             </div>
           </div>
-
+          
           <!-- Investment Plans -->
           <div class="bg-white rounded-xl shadow-md overflow-hidden animate__animated animate__fadeInRight">
             <div class="p-6 border-b border-gray-200">
@@ -289,54 +244,10 @@
                 <a href="#" class="text-sm text-blue-600 hover:text-blue-800">View All</a>
               </div>
             </div>
-            <div class="divide-y divide-gray-200">
-              <!-- Plan 1 -->
-              <div class="p-6 hover:bg-gray-50 transition">
-                <div class="flex items-center justify-between mb-3">
-                  <h4 class="font-medium text-gray-900">Starter Plan</h4>
-                  <span class="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">Popular</span>
-                </div>
-                <div class="flex items-center justify-between">
-                  <div>
-                    <p class="text-sm text-gray-500 mb-1">5% monthly return</p>
-                    <p class="text-sm text-gray-500">6 month duration</p>
-                  </div>
-                  <button class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm transition transform hover:scale-105">
-                    Invest
-                  </button>
-                </div>
-              </div>
-              
-              <!-- Plan 2 -->
-              <div class="p-6 hover:bg-gray-50 transition">
-                <div class="flex items-center justify-between mb-3">
-                  <h4 class="font-medium text-gray-900">Premium Plan</h4>
-                </div>
-                <div class="flex items-center justify-between">
-                  <div>
-                    <p class="text-sm text-gray-500 mb-1">8% monthly return</p>
-                    <p class="text-sm text-gray-500">12 month duration</p>
-                  </div>
-                  <button class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm transition transform hover:scale-105">
-                    Invest
-                  </button>
-                </div>
-              </div>
-              
-              <!-- Plan 3 -->
-              <div class="p-6 hover:bg-gray-50 transition">
-                <div class="flex items-center justify-between mb-3">
-                  <h4 class="font-medium text-gray-900">VIP Plan</h4>
-                </div>
-                <div class="flex items-center justify-between">
-                  <div>
-                    <p class="text-sm text-gray-500 mb-1">12% monthly return</p>
-                    <p class="text-sm text-gray-500">24 month duration</p>
-                  </div>
-                  <button class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm transition transform hover:scale-105">
-                    Invest
-                  </button>
-                </div>
+            <div class="divide-y divide-gray-200" id="investment-plans">
+              <!-- Plans will be loaded here dynamically -->
+              <div class="p-6 text-center text-gray-500">
+                Loading investment plans...
               </div>
             </div>
           </div>
@@ -390,8 +301,61 @@
             </div>
             
             <div class="mt-6">
-              <button class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition transform hover:scale-[1.01]">
+              <button id="proceed-deposit-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition transform hover:scale-[1.01]">
                 Proceed to Deposit
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Profile Edit Modal -->
+        <div id="profile-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div class="bg-white rounded-xl shadow-xl w-full max-w-md p-6 animate__animated animate__fadeInUp">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-xl font-bold text-gray-900">Edit Profile</h3>
+              <button id="close-profile-modal" class="text-gray-500 hover:text-gray-700">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
+            </div>
+            
+            <div class="mb-6 text-center">
+              <div class="relative inline-block">
+                <img id="profile-preview" class="w-32 h-32 rounded-full object-cover mx-auto mb-4" src="https://randomuser.me/api/portraits/men/32.jpg" alt="Profile">
+                <label for="profile-upload" class="absolute bottom-0 right-0 bg-blue-600 text-white p-2 rounded-full cursor-pointer hover:bg-blue-700">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                  </svg>
+                  <input id="profile-upload" type="file" class="hidden" accept="image/*">
+                </label>
+              </div>
+            </div>
+            
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                <input id="profile-name" type="text" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <input id="profile-email" type="email" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                <input id="profile-phone" type="tel" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              </div>
+            </div>
+            
+            <div class="mt-6 flex justify-end space-x-3">
+              <button id="cancel-profile-edit" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">
+                Cancel
+              </button>
+              <button id="save-profile-btn" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">
+                Save Changes
               </button>
             </div>
           </div>
@@ -401,34 +365,791 @@
   </div>
 
   <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    // Simple animations on scroll
-    document.addEventListener('DOMContentLoaded', function() {
-      const animatedElements = document.querySelectorAll('.animate__animated');
-      
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add(entry.target.dataset.animate);
-            observer.unobserve(entry.target);
-          }
-        });
-      }, { threshold: 0.1 });
+ // Initialize Supabase
+  const supabaseUrl = 'https://xjonomapbiphywjhezfj.supabase.co';
+  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhqb25vbWFwYmlwaHl3amhlemZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgxNTMzMTEsImV4cCI6MjA2MzcyOTMxMX0.iv93r6S6SFDeE44KfN7XrTG9LEy75wzvqXIfdADGcCo';
+  const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-      animatedElements.forEach(element => {
-        observer.observe(element);
-      });
+  // DOM Elements
+  const profileMenuButton = document.getElementById('profile-menu-button');
+  const profileMenu = document.getElementById('profile-menu');
+  const profileModal = document.getElementById('profile-modal');
+  const closeProfileModal = document.getElementById('close-profile-modal');
+  const cancelProfileEdit = document.getElementById('cancel-profile-edit');
+  const profileUpload = document.getElementById('profile-upload');
+  const profilePreview = document.getElementById('profile-preview');
+  const saveProfileBtn = document.getElementById('save-profile-btn');
+  const logoutBtn = document.getElementById('logout-btn');
+  const quickDepositBtn = document.getElementById('quick-deposit-btn');
+  const proceedDepositBtn = document.getElementById('proceed-deposit-btn');
+  const startKycBtn = document.getElementById('start-kyc-btn');
 
-      // Simulate KYC progress update (for demo)
-      setTimeout(() => {
-        const kycProgress = document.querySelector('.progress-ring__circle');
-        if (kycProgress) {
-          kycProgress.style.strokeDashoffset = '10'; // Update to 90% complete
-          document.querySelector('.kyc-percent').textContent = '90%';
-          document.querySelector('.kyc-status').textContent = 'Verification almost complete';
-        }
-      }, 3000);
+  // User data
+  let currentUser = null;
+  let userProfile = null;
+  let transactions = [];
+  let investmentPlans = [];
+  let userInvestments = [];
+
+  // Initialize the app when DOM is loaded
+  document.addEventListener('DOMContentLoaded', async () => {
+    await checkAuth();
+    await fetchUserProfile();
+    await fetchTransactions();
+    await fetchInvestmentPlans();
+    await fetchUserInvestments();
+    updateDashboard();
+  });
+
+// Check authentication status
+async function checkAuth() {
+  const { data: { user }, error } = await supabaseClient.auth.getUser();
+  
+  if (error || !user) {
+    window.location.href = 'login.html';
+    return;
+  }
+  
+  currentUser = user;
+  updateProfileUI();
+}
+
+// Fetch user profile from database
+async function fetchUserProfile() {
+  const { data, error } = await supabaseClient
+    .from('profiles')
+    .select('*')
+    .eq('id', currentUser.id)
+    .single();
+    
+  if (error) {
+    console.error('Error fetching profile:', error);
+    return;
+  }
+  
+  userProfile = data;
+  
+  // If profile doesn't exist, create one
+  if (!userProfile) {
+    await createUserProfile();
+  }
+  
+  updateProfileUI();
+  updateKycProgress(userProfile.kyc_progress || 0);
+}
+
+// Create user profile if it doesn't exist
+async function createUserProfile() {
+  const { data, error } = await supabaseClient
+    .from('profiles')
+    .insert([
+      { 
+        id: currentUser.id,
+        full_name: currentUser.email.split('@')[0],
+        avatar_url: `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.email.split('@')[0])}&background=random`
+      }
+    ])
+    .select()
+    .single();
+    
+  if (error) {
+    console.error('Error creating profile:', error);
+    return;
+  }
+  
+  userProfile = data;
+}
+
+// Fetch user transactions
+async function fetchTransactions() {
+  const { data, error } = await supabaseClient
+    .from('transactions')
+    .select('*')
+    .eq('user_id', currentUser.id)
+    .order('created_at', { ascending: false })
+    .limit(5);
+    
+  if (error) {
+    console.error('Error fetching transactions:', error);
+    return;
+  }
+  
+  transactions = data;
+  renderTransactions();
+}
+
+// Fetch investment plans
+async function fetchInvestmentPlans() {
+  const { data, error } = await supabaseClient
+    .from('investment_plans')
+    .select('*');
+    
+  if (error) {
+    console.error('Error fetching investment plans:', error);
+    return;
+  }
+  
+  investmentPlans = data;
+  renderInvestmentPlans();
+}
+
+// Fetch user investments
+async function fetchUserInvestments() {
+  const { data, error } = await supabaseClient
+    .from('user_investments')
+    .select('*, investment_plans(*)')
+    .eq('user_id', currentUser.id)
+    .order('created_at', { ascending: false });
+    
+  if (error) {
+    console.error('Error fetching user investments:', error);
+    return;
+  }
+  
+  userInvestments = data;
+  updateDashboard();
+}
+
+// Update dashboard with user data
+function updateDashboard() {
+  // Welcome message
+  document.getElementById('welcome-message').textContent = `Welcome back, ${userProfile?.full_name || currentUser?.email || 'User'}`;
+  
+  // Calculate total balance (sum of all transactions)
+  const totalBalance = transactions.reduce((sum, transaction) => {
+    return transaction.type === 'deposit' || transaction.type === 'dividend' 
+      ? sum + transaction.amount 
+      : sum - transaction.amount;
+  }, 0);
+  
+  document.getElementById('total-balance').textContent = `$${totalBalance.toFixed(2)}`;
+  
+  // Calculate active investments
+  const activeInvestments = userInvestments
+    .filter(inv => inv.status === 'active')
+    .reduce((sum, inv) => sum + inv.amount, 0);
+  
+  document.getElementById('active-investments').textContent = `$${activeInvestments.toFixed(2)}`;
+  document.getElementById('active-plans-count').textContent = 
+    `${userInvestments.filter(inv => inv.status === 'active').length} active plans`;
+}
+
+// Update profile UI elements
+function updateProfileUI() {
+  // Sidebar profile
+  document.getElementById('sidebar-profile-name').textContent = userProfile?.full_name || currentUser?.email || 'User';
+  document.getElementById('sidebar-profile-email').textContent = currentUser?.email || '';
+  document.getElementById('sidebar-profile-img').src = userProfile?.avatar_url || 'https://randomuser.me/api/portraits/men/32.jpg';
+  
+  // Top navigation profile
+  document.getElementById('topnav-profile-name').textContent = userProfile?.full_name || currentUser?.email || 'User';
+  document.getElementById('topnav-profile-img').src = userProfile?.avatar_url || 'https://randomuser.me/api/portraits/men/32.jpg';
+}
+
+// Render transactions list
+function renderTransactions() {
+  const container = document.getElementById('transactions-list');
+  container.innerHTML = '';
+  
+  if (transactions.length === 0) {
+    container.innerHTML = '<div class="p-6 text-center text-gray-500">No transactions found</div>';
+    return;
+  }
+  
+  transactions.forEach(transaction => {
+    const transactionEl = document.createElement('div');
+    transactionEl.className = 'p-4 hover:bg-gray-50 transition';
+    
+    const typeClass = transaction.type === 'deposit' || transaction.type === 'dividend' 
+      ? 'text-green-500' 
+      : 'text-red-500';
+    
+    const icon = transaction.type === 'deposit' 
+      ? '<svg class="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>'
+      : '<svg class="w-5 h-5 text-red-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg>';
+    
+    transactionEl.innerHTML = `
+      <div class="flex items-center justify-between">
+        <div class="flex items-center">
+          ${icon}
+          <div>
+            <p class="text-sm font-medium text-gray-900">${transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1)}</p>
+            <p class="text-xs text-gray-500">${new Date(transaction.created_at).toLocaleString()}</p>
+          </div>
+        </div>
+        <div class="text-right">
+          <p class="text-sm font-medium ${typeClass}">${transaction.type === 'deposit' || transaction.type === 'dividend' ? '+' : '-'}$${transaction.amount.toFixed(2)}</p>
+          <p class="text-xs text-gray-500">${transaction.status.charAt(0).toUpperCase() + transaction.status.slice(1)}</p>
+        </div>
+      </div>
+    `;
+    
+    container.appendChild(transactionEl);
+  });
+}
+
+// Render investment plans
+function renderInvestmentPlans() {
+  const container = document.getElementById('investment-plans');
+  container.innerHTML = '';
+  
+  if (investmentPlans.length === 0) {
+    container.innerHTML = '<div class="p-6 text-center text-gray-500">No investment plans available</div>';
+    return;
+  }
+  
+  investmentPlans.forEach(plan => {
+    const planEl = document.createElement('div');
+    planEl.className = 'p-4 hover:bg-gray-50 transition cursor-pointer';
+    
+    const dailyReturn = (plan.daily_interest * 100).toFixed(2);
+    const totalReturn = (plan.daily_interest * plan.duration_days * 100).toFixed(2);
+    
+    planEl.innerHTML = `
+      <div class="flex items-start justify-between">
+        <div>
+          <h4 class="font-medium text-gray-900">${plan.name}</h4>
+          <p class="text-sm text-gray-500">${plan.description || 'High return investment plan'}</p>
+        </div>
+        <span class="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
+          ${dailyReturn}% daily
+        </span>
+      </div>
+      <div class="mt-3 grid grid-cols-3 gap-2 text-center">
+        <div>
+          <p class="text-xs text-gray-500">Min Amount</p>
+          <p class="text-sm font-medium">$${plan.min_amount.toFixed(2)}</p>
+        </div>
+        <div>
+          <p class="text-xs text-gray-500">Duration</p>
+          <p class="text-sm font-medium">${plan.duration_days} days</p>
+        </div>
+        <div>
+          <p class="text-xs text-gray-500">Total Return</p>
+          <p class="text-sm font-medium">${totalReturn}%</p>
+        </div>
+      </div>
+      <button class="mt-3 w-full bg-blue-600 hover:bg-blue-700 text-white text-sm py-2 px-4 rounded-lg invest-btn" data-plan-id="${plan.id}">
+        Invest Now
+      </button>
+    `;
+    
+    container.appendChild(planEl);
+  });
+  
+  // Add event listeners to invest buttons
+  document.querySelectorAll('.invest-btn').forEach(button => {
+    button.addEventListener('click', (e) => {
+      const planId = e.target.getAttribute('data-plan-id');
+      openInvestModal(planId);
     });
-  </script>
+  });
+}
+
+// Open invest modal
+function openInvestModal(planId) {
+  const plan = investmentPlans.find(p => p.id == planId);
+  if (!plan) return;
+  
+  // Create a simple modal for investment
+  const modalHtml = `
+    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white rounded-xl shadow-xl w-full max-w-md p-6 animate__animated animate__fadeInUp">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-xl font-bold text-gray-900">Invest in ${plan.name}</h3>
+          <button id="close-invest-modal" class="text-gray-500 hover:text-gray-700">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+        
+        <div class="mb-4">
+          <p class="text-gray-600 mb-2">Investment Details:</p>
+          <ul class="text-sm text-gray-600 space-y-1">
+            <li>Daily Return: ${(plan.daily_interest * 100).toFixed(2)}%</li>
+            <li>Duration: ${plan.duration_days} days</li>
+            <li>Total Return: ${(plan.daily_interest * plan.duration_days * 100).toFixed(2)}%</li>
+            <li>Minimum Amount: $${plan.min_amount.toFixed(2)}</li>
+          </ul>
+        </div>
+        
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Amount to Invest ($)</label>
+          <input id="invest-amount" type="number" min="${plan.min_amount}" ${plan.max_amount ? `max="${plan.max_amount}"` : ''} 
+            class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            placeholder="Enter amount">
+        </div>
+        
+        <div class="mt-6 flex justify-end space-x-3">
+          <button id="cancel-invest" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">
+            Cancel
+          </button>
+          <button id="confirm-invest" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">
+            Confirm Investment
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  const modal = document.createElement('div');
+  modal.innerHTML = modalHtml;
+  document.body.appendChild(modal);
+  
+  // Add event listeners
+  document.getElementById('close-invest-modal').addEventListener('click', () => {
+    modal.remove();
+  });
+  
+  document.getElementById('cancel-invest').addEventListener('click', () => {
+    modal.remove();
+  });
+  
+  document.getElementById('confirm-invest').addEventListener('click', async () => {
+    const amount = parseFloat(document.getElementById('invest-amount').value);
+    
+    if (isNaN(amount) || amount < plan.min_amount || (plan.max_amount && amount > plan.max_amount)) {
+      alert(`Please enter a valid amount between $${plan.min_amount.toFixed(2)} and ${plan.max_amount ? `$${plan.max_amount.toFixed(2)}` : 'any amount'}`);
+      return;
+    }
+    
+    try {
+      // Create transaction
+      const { error: txError } = await supabaseClient
+        .from('transactions')
+        .insert([
+          {
+            user_id: currentUser.id,
+            amount: amount,
+            type: 'investment',
+            status: 'completed',
+            description: `Investment in ${plan.name} plan`
+          }
+        ]);
+        
+      if (txError) throw txError;
+      
+      // Create investment
+      const startDate = new Date();
+      const endDate = new Date();
+      endDate.setDate(startDate.getDate() + plan.duration_days);
+      
+      const { error: invError } = await supabaseClient
+        .from('user_investments')
+        .insert([
+          {
+            user_id: currentUser.id,
+            plan_id: plan.id,
+            amount: amount,
+            start_date: startDate.toISOString(),
+            end_date: endDate.toISOString(),
+            status: 'active'
+          }
+        ]);
+        
+      if (invError) throw invError;
+      
+      alert('Investment created successfully!');
+      modal.remove();
+      
+      // Refresh data
+      await fetchTransactions();
+      await fetchUserInvestments();
+      updateDashboard();
+    } catch (error) {
+      console.error('Error creating investment:', error);
+      alert('Error creating investment. Please try again.');
+    }
+  });
+}
+
+// Update KYC progress
+function updateKycProgress(percent) {
+  const circle = document.getElementById('kyc-progress-ring');
+  const circumference = 2 * Math.PI * 16;
+  const offset = circumference - (percent / 100) * circumference;
+  
+  circle.style.strokeDashoffset = offset;
+  document.getElementById('kyc-percent').textContent = `${percent}%`;
+  
+  if (percent === 0) {
+    document.getElementById('kyc-status').textContent = 'Verification not started';
+    startKycBtn.textContent = 'Start Verification';
+    startKycBtn.classList.remove('bg-green-500', 'hover:bg-green-600');
+    startKycBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
+  } else if (percent < 100) {
+    document.getElementById('kyc-status').textContent = 'Verification in progress';
+    startKycBtn.textContent = 'Continue Verification';
+    startKycBtn.classList.remove('bg-green-500', 'hover:bg-green-600');
+    startKycBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
+  } else {
+    document.getElementById('kyc-status').textContent = 'Verification complete!';
+    startKycBtn.textContent = 'Verified';
+    startKycBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+    startKycBtn.classList.add('bg-green-500', 'hover:bg-green-600');
+  }
+}
+
+// Toggle profile menu
+profileMenuButton.addEventListener('click', () => {
+  profileMenu.classList.toggle('hidden');
+});
+
+// Close profile menu when clicking outside
+document.addEventListener('click', (event) => {
+  if (!profileMenu.contains(event.target) && !profileMenuButton.contains(event.target)) {
+    profileMenu.classList.add('hidden');
+  }
+});
+
+// Open profile modal
+profileMenu.querySelector('a:first-child').addEventListener('click', (e) => {
+  e.preventDefault();
+  openProfileModal();
+});
+
+// Close profile modal
+closeProfileModal.addEventListener('click', closeProfileModalFunc);
+cancelProfileEdit.addEventListener('click', closeProfileModalFunc);
+
+function closeProfileModalFunc() {
+  profileModal.classList.add('hidden');
+}
+
+function openProfileModal() {
+  // Fill form with current user data
+  document.getElementById('profile-name').value = userProfile?.full_name || '';
+  document.getElementById('profile-email').value = currentUser?.email || '';
+  document.getElementById('profile-phone').value = userProfile?.phone || '';
+  profilePreview.src = userProfile?.avatar_url || 'https://randomuser.me/api/portraits/men/32.jpg';
+  
+  profileModal.classList.remove('hidden');
+}
+
+// Handle profile image upload
+profileUpload.addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  // Create preview
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    profilePreview.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+
+  // Upload to Supabase Storage
+  const fileExt = file.name.split('.').pop();
+  const filePath = `profile-images/${currentUser.id}/${Date.now()}.${fileExt}`;
+  
+  try {
+    // First delete old image if exists
+    if (userProfile.avatar_url) {
+      const oldPath = userProfile.avatar_url.split('/').pop();
+      await supabaseClient.storage.from('digibit').remove([`profile-images/${currentUser.id}/${oldPath}`]);
+    }
+
+    const { error: uploadError } = await supabaseClient.storage
+      .from('digibit')
+      .upload(filePath, file);
+
+    if (uploadError) throw uploadError;
+
+    // Get public URL
+    const { data: { publicUrl } } = supabaseClient.storage
+      .from('digibit')
+      .getPublicUrl(filePath);
+
+    // Update user profile in database
+    const { error: updateError } = await supabaseClient
+      .from('profiles')
+      .update({ avatar_url: publicUrl })
+      .eq('id', currentUser.id);
+
+    if (updateError) throw updateError;
+
+    // Update UI
+    userProfile.avatar_url = publicUrl;
+    updateProfileUI();
+  } catch (error) {
+    console.error('Error uploading image:', error);
+    alert('Error uploading profile image. Please try again.');
+  }
+});
+
+// Save profile changes
+saveProfileBtn.addEventListener('click', async () => {
+  const fullName = document.getElementById('profile-name').value;
+  const phone = document.getElementById('profile-phone').value;
+
+  try {
+    const { error } = await supabaseClient
+      .from('profiles')
+      .update({ 
+        full_name: fullName,
+        phone: phone
+      })
+      .eq('id', currentUser.id);
+
+    if (error) throw error;
+
+    // Update local data
+    userProfile.full_name = fullName;
+    userProfile.phone = phone;
+    
+    // Update UI
+    updateProfileUI();
+    closeProfileModalFunc();
+  } catch (error) {
+    console.error('Error updating profile:', error);
+    alert('Error updating profile. Please try again.');
+  }
+});
+
+// Logout
+logoutBtn.addEventListener('click', async () => {
+  try {
+    const { error } = await supabaseClient.auth.signOut();
+    if (error) throw error;
+    
+    // Redirect to login page
+    window.location.href = 'login.html';
+  } catch (error) {
+    console.error('Error logging out:', error);
+    alert('Error logging out. Please try again.');
+  }
+});
+
+// Deposit buttons
+quickDepositBtn.addEventListener('click', () => {
+  // Scroll to deposit section
+  document.querySelector('#proceed-deposit-btn').scrollIntoView({ behavior: 'smooth' });
+});
+
+proceedDepositBtn.addEventListener('click', () => {
+  openDepositModal();
+});
+
+// KYC Verification
+startKycBtn.addEventListener('click', () => {
+  openKycModal();
+});
+
+// Open deposit modal
+function openDepositModal() {
+  const modalHtml = `
+    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white rounded-xl shadow-xl w-full max-w-md p-6 animate__animated animate__fadeInUp">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-xl font-bold text-gray-900">Make a Deposit</h3>
+          <button id="close-deposit-modal" class="text-gray-500 hover:text-gray-700">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+        
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Amount ($)</label>
+          <input id="deposit-amount" type="number" min="10" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Enter amount">
+        </div>
+        
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Payment Method</label>
+          <select id="deposit-method" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <option value="credit_card">Credit/Debit Card</option>
+            <option value="bank_transfer">Bank Transfer</option>
+            <option value="crypto">Cryptocurrency</option>
+          </select>
+        </div>
+        
+        <div class="mt-6 flex justify-end space-x-3">
+          <button id="cancel-deposit" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">
+            Cancel
+          </button>
+          <button id="confirm-deposit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">
+            Confirm Deposit
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  const modal = document.createElement('div');
+  modal.innerHTML = modalHtml;
+  document.body.appendChild(modal);
+  
+  // Add event listeners
+  document.getElementById('close-deposit-modal').addEventListener('click', () => {
+    modal.remove();
+  });
+  
+  document.getElementById('cancel-deposit').addEventListener('click', () => {
+    modal.remove();
+  });
+  
+  document.getElementById('confirm-deposit').addEventListener('click', async () => {
+    const amount = parseFloat(document.getElementById('deposit-amount').value);
+    const method = document.getElementById('deposit-method').value;
+    
+    if (isNaN(amount)) {
+      alert('Please enter a valid amount');
+      return;
+    }
+    
+    try {
+      const { error } = await supabaseClient
+        .from('transactions')
+        .insert([
+          {
+            user_id: currentUser.id,
+            amount: amount,
+            type: 'deposit',
+            status: 'completed',
+            description: `Deposit via ${method.replace('_', ' ')}`
+          }
+        ]);
+        
+      if (error) throw error;
+      
+      alert('Deposit created successfully!');
+      modal.remove();
+      
+      // Refresh data
+      await fetchTransactions();
+      updateDashboard();
+    } catch (error) {
+      console.error('Error creating deposit:', error);
+      alert('Error creating deposit. Please try again.');
+    }
+  });
+}
+
+// Open KYC modal
+function openKycModal() {
+  const modalHtml = `
+    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white rounded-xl shadow-xl w-full max-w-md p-6 animate__animated animate__fadeInUp">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-xl font-bold text-gray-900">KYC Verification</h3>
+          <button id="close-kyc-modal" class="text-gray-500 hover:text-gray-700">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+        
+        <div class="mb-4">
+          <p class="text-gray-600 mb-4">Please complete the following steps to verify your identity:</p>
+          
+          <div class="space-y-4">
+            <div class="flex items-center">
+              <input id="kyc-step1" type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" ${userProfile.kyc_progress >= 25 ? 'checked' : ''}>
+              <label for="kyc-step1" class="ml-2 block text-sm text-gray-700">Personal Information</label>
+            </div>
+            
+            <div class="flex items-center">
+              <input id="kyc-step2" type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" ${userProfile.kyc_progress >= 50 ? 'checked' : ''}>
+              <label for="kyc-step2" class="ml-2 block text-sm text-gray-700">ID Verification</label>
+            </div>
+            
+            <div class="flex items-center">
+              <input id="kyc-step3" type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" ${userProfile.kyc_progress >= 75 ? 'checked' : ''}>
+              <label for="kyc-step3" class="ml-2 block text-sm text-gray-700">Address Verification</label>
+            </div>
+            
+            <div class="flex items-center">
+              <input id="kyc-step4" type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" ${userProfile.kyc_progress >= 100 ? 'checked' : ''}>
+              <label for="kyc-step4" class="ml-2 block text-sm text-gray-700">Selfie Verification</label>
+            </div>
+          </div>
+        </div>
+        
+        <div class="mt-6 flex justify-end space-x-3">
+          <button id="cancel-kyc" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">
+            Cancel
+          </button>
+          <button id="save-kyc" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">
+            Save Progress
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  const modal = document.createElement('div');
+  modal.innerHTML = modalHtml;
+  document.body.appendChild(modal);
+  
+  // Add event listeners
+  document.getElementById('close-kyc-modal').addEventListener('click', () => {
+    modal.remove();
+  });
+  
+  document.getElementById('cancel-kyc').addEventListener('click', () => {
+    modal.remove();
+  });
+  
+  document.getElementById('save-kyc').addEventListener('click', async () => {
+    const step1 = document.getElementById('kyc-step1').checked;
+    const step2 = document.getElementById('kyc-step2').checked;
+    const step3 = document.getElementById('kyc-step3').checked;
+    const step4 = document.getElementById('kyc-step4').checked;
+    
+    let progress = 0;
+    if (step1) progress += 25;
+    if (step2) progress += 25;
+    if (step3) progress += 25;
+    if (step4) progress += 25;
+    
+    try {
+      const { error } = await supabaseClient
+        .from('profiles')
+        .update({ 
+          kyc_progress: progress,
+          kyc_status: progress === 100 ? 'verified' : 'in_progress'
+        })
+        .eq('id', currentUser.id);
+
+      if (error) throw error;
+
+      // Update local data
+      userProfile.kyc_progress = progress;
+      userProfile.kyc_status = progress === 100 ? 'verified' : 'in_progress';
+      
+      // Update UI
+      updateKycProgress(progress);
+      modal.remove();
+    } catch (error) {
+      console.error('Error updating KYC:', error);
+      alert('Error updating KYC progress. Please try again.');
+    }
+  });
+}
+ // Profile dropdown functionality
+  document.addEventListener('click', function(event) {
+    const menu = document.getElementById('profile-menu');
+    const button = document.getElementById('profile-menu-button');
+    if (!menu.contains(event.target)) {
+      menu.classList.add('hidden');
+    }
+  });
+
+  // Toggle dropdown on button click
+  document.getElementById('profile-menu-button').addEventListener('click', function(event) {
+    event.stopPropagation();
+    document.getElementById('profile-menu').classList.toggle('hidden');
+  });
+
+  // Open profile modal from dropdown
+  function yourProfile() {
+    openProfileModal();
+    // Also close the dropdown
+    document.getElementById('profile-menu').classList.add('hidden');
+  }
+</script>
 </body>
 </html>
