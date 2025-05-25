@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ZzenexFort - Smart Investments</title>
+  <title>DigiBit Finance - Smart Investments</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
@@ -19,74 +19,74 @@
     .hero-overlay {
       background-color: rgba(0, 0, 0, 0.6);
     }
+    .modal {
+      transition: all 0.3s ease;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .modal.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+    .modal-content {
+      transform: translateY(-20px);
+      transition: transform 0.3s ease;
+    }
+    .modal.active .modal-content {
+      transform: translateY(0);
+    }
   </style>
 </head>
 <body class="bg-gray-50">
-   <nav class="absolute w-full z-50 bg-gray-900 bg-opacity-50 md:bg-transparent">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex justify-between items-center h-16">
-      <!-- Logo -->
-      <div class="flex items-center">
-        <span class="text-xl font-bold text-white">DigiBit Finance</span>
-      </div>
+  <!-- Navigation -->
+  <nav class="absolute w-full z-50 bg-gray-900 bg-opacity-50 md:bg-transparent">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <!-- Logo -->
+        <div class="flex items-center space-x-3">
+          <a href="#" class="flex items-center">
+            <img src="/logo.jpg" alt="DigiBit Logo" class="h-10 w-10 rounded-full bg-white p-1 shadow" />
+            <span class="ml-3 text-xl font-bold text-white hidden md:inline">DigiBit Finance</span>
+          </a>
+        </div>
 
-      <!-- Desktop Navigation (hidden on mobile) -->
-      <div class="hidden md:flex items-center space-x-8">
-        <a href="#" class="text-white hover:text-yellow-300 transition-colors">Home</a>
-        <a href="#" class="text-white hover:text-yellow-300 transition-colors">Plans</a>
-        <a href="#" class="text-white hover:text-yellow-300 transition-colors">Wallet</a>
-        <a href="#" class="text-white hover:text-yellow-300 transition-colors">Referrals</a>
-        <button class="bg-yellow-500 hover:bg-yellow-600 text-gray-900 px-4 py-2 rounded-md transition-colors">Login</button>
-      </div>
+        <!-- Desktop Navigation -->
+        <div class="hidden md:flex items-center space-x-8">
+          <a href="#" class="text-white hover:text-yellow-300 transition-colors">Home</a>
+          <a href="#" class="text-white hover:text-yellow-300 transition-colors">Plans</a>
+          <a href="#" class="text-white hover:text-yellow-300 transition-colors">Wallet</a>
+          <a href="#" class="text-white hover:text-yellow-300 transition-colors">Referrals</a>
+          <button onclick="openAuthModal('login')" class="bg-yellow-500 hover:bg-yellow-600 text-gray-900 px-4 py-2 rounded-md transition-colors">Login</button>
+        </div>
 
-      <!-- Mobile Menu Button -->
-      <div class="md:hidden flex items-center">
-        <button id="mobile-menu-button" type="button" class="text-white hover:text-yellow-300 focus:outline-none">
-          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
-        </button>
+        <!-- Mobile Menu Button -->
+        <div class="md:hidden flex items-center">
+          <button id="mobile-menu-button" type="button" class="text-white hover:text-yellow-300 focus:outline-none">
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- Mobile Menu (hidden by default) -->
-  <div id="mobile-menu" class="md:hidden hidden bg-gray-900 bg-opacity-95">
-    <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-      <a href="#" class="text-white hover:bg-gray-800 hover:text-yellow-300 block px-3 py-2 rounded-md text-base font-medium">Home</a>
-      <a href="#" class="text-white hover:bg-gray-800 hover:text-yellow-300 block px-3 py-2 rounded-md text-base font-medium">Plans</a>
-      <a href="#" class="text-white hover:bg-gray-800 hover:text-yellow-300 block px-3 py-2 rounded-md text-base font-medium">Wallet</a>
-      <a href="#" class="text-white hover:bg-gray-800 hover:text-yellow-300 block px-3 py-2 rounded-md text-base font-medium">Referrals</a>
-      <button class="w-full bg-yellow-500 hover:bg-yellow-600 text-gray-900 px-4 py-2 rounded-md text-base font-medium mt-2">Login</button>
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="md:hidden hidden bg-gray-900 bg-opacity-95">
+      <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+        <a href="#" class="text-white hover:bg-gray-800 hover:text-yellow-300 block px-3 py-2 rounded-md text-base font-medium">Home</a>
+        <a href="#" class="text-white hover:bg-gray-800 hover:text-yellow-300 block px-3 py-2 rounded-md text-base font-medium">Plans</a>
+        <a href="#" class="text-white hover:bg-gray-800 hover:text-yellow-300 block px-3 py-2 rounded-md text-base font-medium">Wallet</a>
+        <a href="#" class="text-white hover:bg-gray-800 hover:text-yellow-300 block px-3 py-2 rounded-md text-base font-medium">Referrals</a>
+        <button onclick="openAuthModal('login')" class="w-full bg-yellow-500 hover:bg-yellow-600 text-gray-900 px-4 py-2 rounded-md text-base font-medium mt-2">Login</button>
+      </div>
     </div>
-  </div>
-</nav>
+  </nav>
 
-<script>
-  // Mobile menu toggle functionality
-  const mobileMenuButton = document.getElementById('mobile-menu-button');
-  const mobileMenu = document.getElementById('mobile-menu');
-
-  mobileMenuButton.addEventListener('click', () => {
-    mobileMenu.classList.toggle('hidden');
-    // Toggle aria-expanded attribute
-    const expanded = mobileMenuButton.getAttribute('aria-expanded') === 'true';
-    mobileMenuButton.setAttribute('aria-expanded', !expanded);
-  });
-
-  // Close menu when clicking outside
-  document.addEventListener('click', (event) => {
-    if (!mobileMenu.contains(event.target) && !mobileMenuButton.contains(event.target)) {
-      mobileMenu.classList.add('hidden');
-      mobileMenuButton.setAttribute('aria-expanded', 'false');
-    }
-  });
-</script>
-  <!-- Hero Section with Background Image -->
+  <!-- Hero Section -->
   <section class="min-h-screen hero-bg">
     <div class="hero-overlay min-h-screen flex items-center">
       <div class="max-w-7xl mx-auto px-6 py-20 md:py-32 flex flex-col md:flex-row items-center text-white">
-        <!-- Left Column (Text) -->
+        <!-- Left Column -->
         <div class="md:w-1/2 mb-12 md:mb-0">
           <h1 class="text-4xl md:text-5xl font-bold mb-6 leading-tight">
             Welcome to <span class="text-yellow-400">DigiBit Finance</span>
@@ -95,7 +95,7 @@
             A reliable and professional platform where your investments grow with the best returns.
           </p>
           <div class="flex flex-col sm:flex-row gap-4">
-            <button class="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-3 px-8 rounded-lg transition duration-300 transform hover:scale-105">
+            <button onclick="openAuthModal('register')" class="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-3 px-8 rounded-lg transition duration-300 transform hover:scale-105">
               Invest Now
             </button>
             <button class="bg-transparent border-2 border-white hover:bg-white hover:text-gray-900 font-bold py-3 px-8 rounded-lg transition duration-300">
@@ -104,7 +104,7 @@
           </div>
         </div>
 
-        <!-- Right Column (Stats Card) -->
+        <!-- Right Column -->
         <div class="md:w-1/2 flex justify-center">
           <div class="bg-white/10 backdrop-blur-sm p-8 rounded-2xl border border-white/20 max-w-md">
             <div class="text-center">
@@ -169,71 +169,57 @@
     <div class="max-w-4xl mx-auto px-6 text-center">
       <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-6">Ready to Grow Your Wealth?</h2>
       <p class="text-xl text-gray-700 mb-8">Join our community of successful investors today.</p>
-      <button class="bg-blue-900 hover:bg-blue-800 text-white font-bold py-3 px-8 rounded-lg transition duration-300 transform hover:scale-105">
+      <button onclick="openAuthModal('register')" class="bg-blue-900 hover:bg-blue-800 text-white font-bold py-3 px-8 rounded-lg transition duration-300 transform hover:scale-105">
         Start Investing Now
       </button>
     </div>
   </section>
-  <!-- Custom Chat Widget -->
+
+  <!-- Chat Widget -->
 <div class="fixed bottom-6 right-6">
   <!-- Chat Toggle Button -->
-  <button id="chatToggle" class="bg-blue-600 text-white p-4 rounded-full shadow-lg hover:bg-blue-700">
+  <button id="chatToggle" class="bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-lg transition-all duration-300">
     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
     </svg>
   </button>
 
-  <!-- Chat Box (Hidden by Default) -->
+  <!-- Chat Box -->
   <div id="chatBox" class="hidden absolute bottom-20 right-0 w-80 bg-white rounded-lg shadow-xl border border-gray-200">
     <!-- Chat Header -->
     <div class="bg-blue-600 text-white p-4 rounded-t-lg flex justify-between items-center">
       <h3 class="font-bold">Support Chat</h3>
-      <button id="closeChat" class="text-white hover:text-gray-200">✕</button>
+      <button id="closeChat" class="text-white hover:text-gray-200 focus:outline-none">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+        </svg>
+      </button>
     </div>
     
     <!-- Chat Messages -->
-    <div id="chatMessages" class="h-64 p-4 overflow-y-auto">
-      <div class="text-center text-gray-500 py-8">Connecting to support...</div>
+    <div id="chatMessages" class="h-64 p-4 overflow-y-auto bg-gray-50">
+      <div class="text-center text-gray-500 py-8">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mx-auto mb-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+        </svg>
+        <p>How can we help you today?</p>
+      </div>
     </div>
     
     <!-- Chat Input -->
-    <div class="p-4 border-t">
-      <input id="messageInput" type="text" placeholder="Type a message..." class="w-full p-2 border rounded">
-      <button id="sendMessage" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Send</button>
+    <div class="p-4 border-t bg-white">
+      <div class="flex space-x-2">
+        <input id="messageInput" type="text" placeholder="Type your message..." 
+               class="flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        <button id="sendMessage" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition">
+          Send
+        </button>
+      </div>
     </div>
   </div>
 </div>
-
-<script>
-  const chatToggle = document.getElementById('chatToggle');
-  const chatBox = document.getElementById('chatBox');
-  const closeChat = document.getElementById('closeChat');
-  const ws = new WebSocket('ws://localhost:3000');
-
-  // Toggle chat visibility
-  chatToggle.addEventListener('click', () => {
-    chatBox.classList.toggle('hidden');
-  });
-
-  closeChat.addEventListener('click', () => {
-    chatBox.classList.add('hidden');
-  });
-
-  // WebSocket handlers
-  ws.onmessage = (event) => {
-    const messages = document.getElementById('chatMessages');
-    messages.innerHTML += `<div class="mb-2 p-2 bg-gray-100 rounded">${event.data}</div>`;
-    messages.scrollTop = messages.scrollHeight;
-  };
-
-  document.getElementById('sendMessage').addEventListener('click', () => {
-    const input = document.getElementById('messageInput');
-    ws.send(input.value);
-    input.value = '';
-  });
-</script>
-<!-- Footer Section -->
-<footer class="bg-gray-900 text-white pt-12 pb-6">
+  <!-- Footer -->
+  <footer class="bg-gray-900 text-white pt-12 pb-6">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
       
@@ -313,5 +299,353 @@
     </div>
   </div>
 </footer>
+
+  <!-- Auth Modal -->
+  <div id="authModal" class="modal fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-50">
+    <div class="modal-content bg-gray-800 rounded-xl max-w-md w-full overflow-hidden">
+      <!-- Tab Buttons -->
+      <div class="flex border-b border-gray-700">
+        <button id="loginTab" class="flex-1 py-4 font-medium text-white bg-gray-800">Login</button>
+        <button id="registerTab" class="flex-1 py-4 font-medium text-gray-400 bg-gray-700">Register</button>
+      </div>
+
+      <!-- Login Form -->
+      <div id="loginFormContainer" class="p-6">
+        <form id="loginForm" class="space-y-4">
+          <div>
+            <input type="email" id="loginEmail" placeholder="Email" required 
+                   class="w-full px-4 py-3 bg-gray-700 rounded-lg text-white placeholder-gray-400">
+          </div>
+          <div>
+            <input type="password" id="loginPassword" placeholder="Password" required 
+                   class="w-full px-4 py-3 bg-gray-700 rounded-lg text-white placeholder-gray-400">
+          </div>
+          <button type="submit" class="w-full bg-yellow-500 hover:bg-yellow-600 text-gray-900 py-3 rounded-lg font-bold">
+            Sign In
+          </button>
+          <div class="text-center">
+            <button type="button" id="forgotPassword" class="text-yellow-400 text-sm hover:underline">
+              Forgot password?
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Registration Form -->
+      <div id="registerFormContainer" class="p-6 hidden">
+        <form id="registerForm" class="space-y-4">
+          <div>
+            <input type="text" id="name" placeholder="Full Name" required 
+                   class="w-full px-4 py-3 bg-gray-700 rounded-lg text-white placeholder-gray-400">
+          </div>
+          <div>
+            <input type="email" id="email" placeholder="Email" required 
+                   class="w-full px-4 py-3 bg-gray-700 rounded-lg text-white placeholder-gray-400">
+          </div>
+          <div>
+            <input type="password" id="password" placeholder="Password (min 6 chars)" minlength="6" required 
+                   class="w-full px-4 py-3 bg-gray-700 rounded-lg text-white placeholder-gray-400">
+          </div>
+          <button type="submit" class="w-full bg-yellow-500 hover:bg-yellow-600 text-gray-900 py-3 rounded-lg font-bold">
+            Create Account
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase and Auth Scripts -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.0/firebase-app.js";
+    import { 
+      getAuth, 
+      createUserWithEmailAndPassword, 
+      signInWithEmailAndPassword,
+      sendPasswordResetEmail,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/9.6.0/firebase-auth.js";
+    import { 
+      getFirestore, 
+      doc, 
+      setDoc 
+    } from "https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore.js";
+
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyCHV7nD3jeNjMQRgRr8GzI9FLUWxhyONls",
+      authDomain: "registration-959f0.firebaseapp.com",
+      projectId: "registration-959f0",
+      storageBucket: "registration-959f0.appspot.com",
+      messagingSenderId: "224071166578",
+      appId: "1:224071166578:web:762eed7a3a4825e4b7b0eb"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // DOM Elements
+    const authModal = document.getElementById('authModal');
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    const forgotPassword = document.getElementById('forgotPassword');
+
+    // Show toast messages
+    function showToast(message, isError = false) {
+      const toast = document.createElement('div');
+      toast.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg ${
+        isError ? 'bg-red-500' : 'bg-green-500'
+      } text-white z-50`;
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      
+      setTimeout(() => {
+        toast.remove();
+      }, 5000);
+    }
+
+    // Registration
+    registerForm?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const name = document.getElementById('name').value;
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        await setDoc(doc(db, "users", userCredential.user.uid), {
+          name: name,
+          email: email,
+          balance: 0,
+          createdAt: new Date()
+        });
+        showToast("Registration successful! Redirecting...");
+        setTimeout(() => {
+          authModal.classList.remove('active');
+          window.location.href = "dashboard.html";
+        }, 1500);
+      } catch (error) {
+        showToast(error.message, true);
+      }
+    });
+
+    // Login
+    loginForm?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
+
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        showToast("Login successful! Redirecting...");
+        setTimeout(() => {
+          authModal.classList.remove('active');
+          window.location.href = "dashboard.html";
+        }, 1500);
+      } catch (error) {
+        showToast(error.message, true);
+      }
+    });
+
+    // Password Reset
+    forgotPassword?.addEventListener('click', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('loginEmail').value || prompt("Enter your email:");
+      
+      if (email) {
+        try {
+          await sendPasswordResetEmail(auth, email);
+          showToast("Password reset email sent!");
+        } catch (error) {
+          showToast(error.message, true);
+        }
+      }
+    });
+
+    // Auth state observer
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        console.log("User logged in:", user.email);
+      }
+    });
+  </script>
+
+  <!-- Modal and Mobile Menu Script -->
+  <script>
+    // Mobile menu toggle
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+    const mobileMenu = document.getElementById('mobile-menu');
+
+    mobileMenuButton.addEventListener('click', () => {
+      mobileMenu.classList.toggle('hidden');
+      const expanded = mobileMenuButton.getAttribute('aria-expanded') === 'true';
+      mobileMenuButton.setAttribute('aria-expanded', !expanded);
+    });
+
+    // Close mobile menu when clicking outside
+    document.addEventListener('click', (event) => {
+      if (!mobileMenu.contains(event.target) && !mobileMenuButton.contains(event.target)) {
+        mobileMenu.classList.add('hidden');
+        mobileMenuButton.setAttribute('aria-expanded', 'false');
+      }
+    });
+
+    // Auth modal elements
+    const authModal = document.getElementById('authModal');
+    const loginTab = document.getElementById('loginTab');
+    const registerTab = document.getElementById('registerTab');
+    const loginFormContainer = document.getElementById('loginFormContainer');
+    const registerFormContainer = document.getElementById('registerFormContainer');
+
+    // Open auth modal with specified tab
+    window.openAuthModal = function(tab = 'login') {
+      authModal.classList.add('active');
+      if (tab === 'login') {
+        loginTab.click();
+      } else {
+        registerTab.click();
+      }
+    };
+
+    // Close modal when clicking outside
+    authModal.addEventListener('click', (e) => {
+      if (e.target === authModal) {
+        authModal.classList.remove('active');
+      }
+    });
+
+    // Switch between login/register tabs
+    loginTab.addEventListener('click', () => {
+      loginTab.classList.add('text-white', 'bg-gray-800');
+      loginTab.classList.remove('text-gray-400', 'bg-gray-700');
+      registerTab.classList.add('text-gray-400', 'bg-gray-700');
+      registerTab.classList.remove('text-white', 'bg-gray-800');
+      loginFormContainer.classList.remove('hidden');
+      registerFormContainer.classList.add('hidden');
+    });
+
+    registerTab.addEventListener('click', () => {
+      registerTab.classList.add('text-white', 'bg-gray-800');
+      registerTab.classList.remove('text-gray-400', 'bg-gray-700');
+      loginTab.classList.add('text-gray-400', 'bg-gray-700');
+      loginTab.classList.remove('text-white', 'bg-gray-800');
+      registerFormContainer.classList.remove('hidden');
+      loginFormContainer.classList.add('hidden');
+    });
+
+   
+  </script>
+  <script>
+  // Chat elements
+  const chatToggle = document.getElementById('chatToggle');
+  const chatBox = document.getElementById('chatBox');
+  const closeChat = document.getElementById('closeChat');
+  const messageInput = document.getElementById('messageInput');
+  const sendMessage = document.getElementById('sendMessage');
+  const chatMessages = document.getElementById('chatMessages');
+
+  // For demo purposes - in production, connect to your WebSocket server
+  let isConnected = false;
+  let messageHistory = [
+    { sender: "support", text: "Hello! How can we help you today?", time: "10:00 AM" },
+    { sender: "support", text: "We're available 24/7 to assist with your investments.", time: "10:01 AM" }
+  ];
+
+  // Toggle chat visibility
+  chatToggle.addEventListener('click', () => {
+    chatBox.classList.toggle('hidden');
+    if (!chatBox.classList.contains('hidden')) {
+      renderMessages();
+    }
+  });
+
+  closeChat.addEventListener('click', () => {
+    chatBox.classList.add('hidden');
+  });
+
+  // Render existing messages
+  function renderMessages() {
+    chatMessages.innerHTML = '';
+    messageHistory.forEach(msg => {
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `mb-3 flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`;
+      
+      messageDiv.innerHTML = `
+        <div class="max-w-xs ${msg.sender === 'user' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-800'} rounded-lg p-3">
+          <p>${msg.text}</p>
+          <p class="text-xs mt-1 ${msg.sender === 'user' ? 'text-blue-200' : 'text-gray-500'}">${msg.time}</p>
+        </div>
+      `;
+      chatMessages.appendChild(messageDiv);
+    });
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  // Send message function
+  function sendMessageToChat() {
+    const message = messageInput.value.trim();
+    if (message === '') return;
+
+    // Add user message to history
+    const now = new Date();
+    const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    messageHistory.push({
+      sender: "user",
+      text: message,
+      time: timeString
+    });
+
+    // Clear input
+    messageInput.value = '';
+
+    // In a real app, you would send this to your WebSocket server
+    // ws.send(JSON.stringify({ type: 'message', content: message }));
+    
+    // For demo, simulate a response after 1 second
+    setTimeout(() => {
+      messageHistory.push({
+        sender: "support",
+        text: "Thanks for your message! Our team will respond shortly.",
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      });
+      renderMessages();
+    }, 1000);
+
+    renderMessages();
+  }
+
+  // Send message on button click
+  sendMessage.addEventListener('click', sendMessageToChat);
+
+  // Send message on Enter key
+  messageInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      sendMessageToChat();
+    }
+  });
+
+  // For a real implementation, you would use WebSocket like this:
+  /*
+  const ws = new WebSocket('wss://your-websocket-server.com');
+  
+  ws.onopen = () => {
+    isConnected = true;
+    console.log('Connected to chat server');
+  };
+
+  ws.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+    // Handle incoming messages
+  };
+
+  ws.onclose = () => {
+    isConnected = false;
+    console.log('Disconnected from chat server');
+  };
+  */
+</script>
 </body>
 </html>
