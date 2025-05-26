@@ -74,7 +74,7 @@
               </svg>
               Security
             </a>
-            <a href="#" class="flex items-center px-4 py-3 text-sm font-medium rounded-lg text-blue-200 hover:bg-blue-800 hover:text-white">
+            <a href="#" id="profileP" class="flex items-center px-4 py-3 text-sm font-medium rounded-lg text-blue-200 hover:bg-blue-800 hover:text-white">
               <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
               </svg>
@@ -142,7 +142,7 @@
               </svg>
               Security
             </a>
-            <a href="#" class="flex items-center px-4 py-3 text-sm font-medium rounded-lg text-blue-700 hover:bg-blue-100">
+            <a href="#" id="Profile_main" class="flex items-center px-4 py-3 text-sm font-medium rounded-lg text-blue-700 hover:bg-blue-100">
               <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
               </svg>
@@ -481,6 +481,8 @@ const logoutBtn = document.getElementById('logout-btn');
 const quickDepositBtn = document.getElementById('quick-deposit-btn');
 const proceedDepositBtn = document.getElementById('proceed-deposit-btn');
 const startKycBtn = document.getElementById('start-kyc-btn');
+const profileMenuMain = document.getElementById('Profile_main');
+const profileP = document.getElementById('profileP');
 
 // User data
 let currentUser = null;
@@ -492,10 +494,10 @@ let userInvestments = [];
 
 // Supported cryptocurrencies
 const cryptoOptions = [
-  { id: 'bitcoin', name: 'Bitcoin (BTC)', address: '3FZbgi29cpjq2GjdwV8eyHuJJnkLtktZc5' },
-  { id: 'ethereum', name: 'Ethereum (ETH)', address: '0x71C7656EC7ab88b098defB751B7401B5f6d8976F' },
-  { id: 'usdt', name: 'Tether (USDT)', address: '0xdAC17F958D2ee523a2206206994597C13D831ec7' },
-  { id: 'bnb', name: 'BNB (BNB)', address: 'bnb1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjx9ml7' }
+  { id: 'bitcoin', name: 'Bitcoin (BTC)', address: 'bc1qqjk8uquf68ucuvza597aqglcanlpwu8xj8d3qg' },
+  { id: 'ethereum', name: 'Ethereum (ETH)', address: '0x386ED7e5cE5F218cC02f8f6b0927927623711657' },
+  { id: 'usdt', name: 'Tether (USDT)', address: '0x386ED7e5cE5F218cC02f8f6b0927927623711657' },
+  { id: 'bnb', name: 'BNB (BNB)', address: '0x386ED7e5cE5F218cC02f8f6b0927927623711657' }
 ];
 
 // Initialize the app when DOM is loaded
@@ -896,6 +898,47 @@ function openDepositModal() {
   });
 }
 
+// Copy to clipboard function
+async function copyToClipboard(text, buttonId) {
+  try {
+    await navigator.clipboard.writeText(text);
+    const button = document.getElementById(buttonId);
+    const originalText = button.textContent;
+    button.textContent = 'Copied!';
+    button.classList.add('bg-green-500', 'text-white');
+    
+    setTimeout(() => {
+      button.textContent = originalText;
+      button.classList.remove('bg-green-500', 'text-white');
+    }, 2000);
+  } catch (err) {
+    // Fallback method for older browsers
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    
+    try {
+      document.execCommand('copy');
+      const button = document.getElementById(buttonId);
+      const originalText = button.textContent;
+      button.textContent = 'Copied!';
+      button.classList.add('bg-green-500', 'text-white');
+      
+      setTimeout(() => {
+        button.textContent = originalText;
+        button.classList.remove('bg-green-500', 'text-white');
+      }, 2000);
+    } catch (fallbackErr) {
+      console.error('Copy to clipboard failed:', fallbackErr);
+      alert('Copy failed. Please copy manually.');
+    }
+    
+    document.body.removeChild(textArea);
+  }
+}
+
 // Show payment details modal
 function showPaymentDetailsModal(amount, method, cryptoType = null) {
   // Get payment details based on method
@@ -912,7 +955,10 @@ function showPaymentDetailsModal(amount, method, cryptoType = null) {
     paymentDetails = {
       title: 'Bank Transfer',
       instructions: 'Transfer the amount to our bank account',
-      address: 'BANK-ACCOUNT-1234567890\nBank Name: DigiBit Finance\nSWIFT: DIGIBITFX'
+      address: 'BANK-ACCOUNT-1234567890',
+      bankName: 'DigiBit Finance',
+      swift: 'DIGIBITFX',
+      fullDetails: 'BANK-ACCOUNT-1234567890\nBank Name: DigiBit Finance\nSWIFT: DIGIBITFX'
     };
   } 
   else if (method === 'crypto') {
@@ -940,11 +986,65 @@ function showPaymentDetailsModal(amount, method, cryptoType = null) {
         </div>
         
         <div class="mb-4">
-          <p class="text-sm font-medium text-gray-700">Payment Address:</p>
-          <div class="mt-2 p-3 bg-gray-100 rounded-lg">
-            <p class="text-sm font-mono break-all">${paymentDetails.address}</p>
-          </div>
-          <p class="text-xs text-gray-500 mt-1">${paymentDetails.instructions}</p>
+          ${method === 'bank_transfer' ? `
+            <p class="text-sm font-medium text-gray-700 mb-2">Bank Transfer Details:</p>
+            <div class="space-y-2">
+              <div class="p-3 bg-gray-100 rounded-lg">
+                <div class="flex justify-between items-center">
+                  <div>
+                    <p class="text-xs text-gray-500">Account Number</p>
+                    <p class="text-sm font-mono break-all">${paymentDetails.address}</p>
+                  </div>
+                  <button id="copy-account" onclick="copyToClipboard('${paymentDetails.address}', 'copy-account')" class="ml-2 px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors">
+                    Copy
+                  </button>
+                </div>
+              </div>
+              <div class="p-3 bg-gray-100 rounded-lg">
+                <div class="flex justify-between items-center">
+                  <div>
+                    <p class="text-xs text-gray-500">Bank Name</p>
+                    <p class="text-sm font-mono">${paymentDetails.bankName}</p>
+                  </div>
+                  <button id="copy-bank" onclick="copyToClipboard('${paymentDetails.bankName}', 'copy-bank')" class="ml-2 px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors">
+                    Copy
+                  </button>
+                </div>
+              </div>
+              <div class="p-3 bg-gray-100 rounded-lg">
+                <div class="flex justify-between items-center">
+                  <div>
+                    <p class="text-xs text-gray-500">SWIFT Code</p>
+                    <p class="text-sm font-mono">${paymentDetails.swift}</p>
+                  </div>
+                  <button id="copy-swift" onclick="copyToClipboard('${paymentDetails.swift}', 'copy-swift')" class="ml-2 px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors">
+                    Copy
+                  </button>
+                </div>
+              </div>
+              <div class="pt-2">
+                <button id="copy-all-bank" onclick="copyToClipboard('${paymentDetails.fullDetails}', 'copy-all-bank')" class="w-full px-3 py-2 text-sm bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors">
+                  Copy All Details
+                </button>
+              </div>
+            </div>
+          ` : method === 'crypto' ? `
+            <p class="text-sm font-medium text-gray-700">Wallet Address:</p>
+            <div class="mt-2 p-3 bg-gray-100 rounded-lg">
+              <div class="flex justify-between items-center">
+                <p class="text-sm font-mono break-all flex-1 mr-2">${paymentDetails.address}</p>
+                <button id="copy-address" onclick="copyToClipboard('${paymentDetails.address}', 'copy-address')" class="px-3 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors whitespace-nowrap">
+                  Copy Address
+                </button>
+              </div>
+            </div>
+          ` : `
+            <p class="text-sm font-medium text-gray-700">Payment Address:</p>
+            <div class="mt-2 p-3 bg-gray-100 rounded-lg">
+              <p class="text-sm font-mono break-all">${paymentDetails.address}</p>
+            </div>
+          `}
+          <p class="text-xs text-gray-500 mt-2">${paymentDetails.instructions}</p>
         </div>
         
         ${method !== 'credit_card' ? `
@@ -971,6 +1071,9 @@ function showPaymentDetailsModal(amount, method, cryptoType = null) {
   const paymentModal = document.createElement('div');
   paymentModal.innerHTML = modalHtml;
   document.body.appendChild(paymentModal);
+  
+  // Make copyToClipboard function available globally for this modal
+  window.copyToClipboard = copyToClipboard;
   
   // Status update function
   function updateStatus(message, isError = false) {
@@ -1201,6 +1304,22 @@ function setupEventListeners() {
     profileMenu.classList.add('hidden');
   });
 
+ if (profileP) {
+    profileP.addEventListener('click', (e) => {
+      e.preventDefault();
+      openProfileModal();
+      // No dropdown to hide in mobile nav
+    });
+  }
+
+  // Mobile profile menu item click
+  if (profileMenuMain) {
+    profileMenuMain.addEventListener('click', (e) => {
+      e.preventDefault();
+      openProfileModal();
+      // No dropdown to hide in mobile nav
+    });
+  }
   // Close profile modal
   closeProfileModal.addEventListener('click', closeProfileModalFunc);
   cancelProfileEdit.addEventListener('click', closeProfileModalFunc);
