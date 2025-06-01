@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DigiBit Deposit Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.min.js"></script>
+    <style>
+        .status-pending { color: #f59e0b; background-color: #fef3c7; }
+        .status-completed { color: #10b981; background-color: #d1fae5; }
+        .status-rejected { color: #ef4444; background-color: #fee2e2; }
+        .modal-backdrop { backdrop-filter: blur(4px); }
+        .fade-in { animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Admin Dashboard Container -->
+    <div class="min-h-screen">
+        <!-- Header -->
+        <header class="bg-gray-900 text-white shadow-sm px-6 py-4 flex justify-between items-center">
+            <div>
+                <h1 class="text-xl font-bold">DigiBit Deposit Admin</h1>
+                <p class="text-gray-400 text-sm">Pending Deposit Management</p>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button onclick="refreshData()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                    <i class="fas fa-sync-alt mr-2"></i>
+                    Refresh
+                </button>
+                <button onclick="logout()" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                    <i class="fas fa-sign-out-alt mr-2"></i>
+                    Logout
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="p-6">
+            <div class="bg-white rounded-xl shadow-sm border">
+                <div class="p-6 border-b">
+                    <h3 class="text-lg font-semibold">Pending Deposits</h3>
+                    <p class="text-gray-600">Review and approve customer deposits</p>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Method</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Proof</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="deposits-table" class="divide-y divide-gray-200">
+                            <!-- Deposits will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transaction Details Modal -->
+    <div id="transaction-modal" class="fixed inset-0 bg-black bg-opacity-50 modal-backdrop flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-2xl mx-4 fade-in">
+            <div class="p-6 border-b">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-xl font-bold">Deposit Details</h3>
+                    <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+            </div>
+            <div id="modal-content" class="p-6">
+                <!-- Modal content will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Preview Modal -->
+    <div id="image-modal" class="fixed inset-0 bg-black bg-opacity-50 modal-backdrop flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-4xl mx-4 fade-in">
+            <div class="p-6 border-b">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-xl font-bold">Payment Proof</h3>
+                    <button onclick="closeImageModal()" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="p-6 text-center">
+                <img id="proof-image" src="" alt="Payment Proof" class="max-w-full max-h-96 mx-auto rounded-lg">
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Modal (will be shown by default) -->
+    <div id="login-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
+            <h2 class="text-2xl font-bold mb-4">Admin Login</h2>
+            <div class="mb-4">
+                <label class="block text-sm font-medium mb-1">Username</label>
+                <input id="login-username" type="text" class="w-full px-4 py-2 border rounded-lg" value="Admin">
+            </div>
+            <div class="mb-6">
+                <label class="block text-sm font-medium mb-1">Password</label>
+                <input id="login-password" type="password" class="w-full px-4 py-2 border rounded-lg" value="Admin1">
+            </div>
+            <div class="flex justify-between">
+                <button onclick="window.location.href='/'" class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">
+                    Cancel
+                </button>
+                <button onclick="attemptLogin()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                    Login
+                </button>
+            </div>
+        </div>
+    </div>
+
+<script>
+// Initialize Supabase client
+const supabaseUrl = 'https://xjonomapbiphywjhezfj.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhqb25vbWFwYmlwaHl3amhlemZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgxNTMzMTEsImV4cCI6MjA2MzcyOTMxMX0.iv93r6S6SFDeE44KfN7XrTG9LEy75wzvqXIfdADGcCo';
+const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+// Global variables
+let isLoggedIn = false;
+
+// Initialize admin dashboard
+async function initializeAdmin() {
+    if (!isLoggedIn) {
+        showLoginModal();
+        return;
+    }
+    
+    // Hide login modal and show dashboard
+    document.getElementById('login-modal').classList.add('hidden');
+    
+    // Load data
+    await loadPendingDeposits();
+}
+
+// Attempt login with hardcoded credentials
+function attemptLogin() {
+    const username = document.getElementById('login-username').value;
+    const password = document.getElementById('login-password').value;
+    
+    if (username === 'Admin' && password === 'Admin1') {
+        isLoggedIn = true;
+        showNotification('Login successful!', 'success');
+        initializeAdmin();
+    } else {
+        showNotification('Invalid credentials', 'error');
+    }
+}
+
+// Refresh all data
+async function refreshData() {
+    try {
+        await loadPendingDeposits();
+    } catch (error) {
+        console.error('Error refreshing data:', error);
+        showNotification('Error refreshing data', 'error');
+    }
+}
+
+// Load pending deposits
+
+async function loadPendingDeposits() {
+    try {
+        const { data: deposits, error } = await supabaseClient
+            .from('transactions')
+            .select(`
+                *,
+                profiles:user_id (id, full_name, phone)
+            `)
+            .eq('type', 'deposit')
+            .eq('status', 'pending')
+            .order('created_at', { ascending: false });
+        
+        if (error) throw error;
+
+        const tableBody = document.getElementById('deposits-table');
+        tableBody.innerHTML = '';
+
+        if (!deposits || deposits.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-500">No pending deposits</td></tr>';
+            return;
+        }
+
+        deposits.forEach(deposit => {
+            const row = document.createElement('tr');
+            row.className = 'hover:bg-gray-50';
+            row.innerHTML = `
+                <td class="px-6 py-4">
+                    <div>
+                        <p class="font-medium">${deposit.profiles?.full_name || 'Unknown User'}</p>
+                        <p class="text-sm text-gray-500">${deposit.profiles?.phone || 'No phone'}</p>
+                    </div>
+                </td>
+                <td class="px-6 py-4 font-semibold text-green-600">${deposit.amount.toFixed(2)}</td>
+                <td class="px-6 py-4">
+                    <span class="text-sm">${deposit.payment_method?.replace('_', ' ') || ''}</span>
+                    ${deposit.crypto_type ? `<br><span class="text-xs text-gray-500">${deposit.crypto_type}</span>` : ''}
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-500">${new Date(deposit.created_at).toLocaleDateString()}</td>
+                <td class="px-6 py-4">
+                    ${deposit.payment_proof ? 
+                        `<button onclick="viewProof('${deposit.payment_proof}')" class="text-blue-600 hover:text-blue-800 text-sm">View Proof</button>` :
+                        '<span class="text-gray-400 text-sm">No proof</span>'
+                    }
+                </td>
+                <td class="px-6 py-4">
+                    <div class="flex space-x-2">
+                        <button onclick="viewTransaction('${deposit.id}')" class="px-3 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600">
+                            View
+                        </button>
+                        <button onclick="approveDeposit('${deposit.id}', ${deposit.amount}, '${deposit.user_id}')" class="px-3 py-1 bg-green-500 text-white text-xs rounded hover:bg-green-600">
+                            Approve
+                        </button>
+                        <button onclick="rejectTransaction('${deposit.id}')" class="px-3 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600">
+                            Reject
+                        </button>
+                    </div>
+                </td>
+            `;
+            tableBody.appendChild(row);
+        });
+
+    } catch (error) {
+        console.error('Error loading pending deposits:', error);
+        showNotification('Error loading pending deposits', 'error');
+    }
+}
+
+
+
+// Approve deposit
+async function approveDeposit(transactionId, amount, userId) {
+    if (!confirm('Are you sure you want to approve this deposit?')) return;
+
+    try {
+        // Update transaction status
+        const { error: updateError } = await supabaseClient
+            .from('transactions')
+            .update({ 
+                status: 'completed',
+                updated_at: new Date().toISOString()
+            })
+            .eq('id', transactionId);
+            
+        if (updateError) throw updateError;
+
+        // Update user balance
+        const { data: userBalance, error: balanceError } = await supabaseClient
+            .from('user_balances')
+            .select('balance')
+            .eq('user_id', userId)
+            .single();
+            
+        if (balanceError && balanceError.code !== 'PGRST116') { // Ignore "no rows" error
+            throw balanceError;
+        }
+
+        const currentBalance = userBalance?.balance || 0;
+        const newBalance = currentBalance + amount;
+        
+        const { error: updateBalanceError } = await supabaseClient
+            .from('user_balances')
+            .upsert({ 
+                user_id: userId,
+                balance: newBalance,
+                updated_at: new Date().toISOString()
+            });
+            
+        if (updateBalanceError) throw updateBalanceError;
+
+        showNotification('Deposit approved successfully! Balance updated.', 'success');
+        await loadPendingDeposits();
+
+    } catch (error) {
+        console.error('Error approving deposit:', error);
+        showNotification('Error approving deposit', 'error');
+    }
+}
+
+// Reject transaction
+async function rejectTransaction(transactionId) {
+    const reason = prompt('Enter rejection reason:');
+    if (!reason) return;
+
+    try {
+        const { error } = await supabaseClient
+            .from('transactions')
+            .update({ 
+                status: 'rejected',
+                rejection_reason: reason,
+                updated_at: new Date().toISOString()
+            })
+            .eq('id', transactionId);
+            
+        if (error) throw error;
+
+        showNotification('Deposit rejected successfully!', 'success');
+        await loadPendingDeposits();
+
+    } catch (error) {
+        console.error('Error rejecting deposit:', error);
+        showNotification('Error rejecting deposit', 'error');
+    }
+}
+
+// View transaction details
+async function viewTransaction(transactionId) {
+    try {
+        const { data: transaction, error } = await supabaseClient
+            .from('transactions')
+            .select(`
+                *,
+                profiles:user_id (id, email, first_name, last_name)
+            `)
+            .eq('id', transactionId)
+            .single();
+            
+        if (error || !transaction) {
+            showNotification('Transaction not found', 'error');
+            return;
+        }
+
+        const modal = document.getElementById('transaction-modal');
+        const content = document.getElementById('modal-content');
+        
+        content.innerHTML = `
+            <div class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Transaction ID</label>
+                        <p class="text-sm font-mono">${transaction.id}</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Status</label>
+                        <span class="px-2 py-1 text-xs rounded-full status-${transaction.status}">${transaction.status}</span>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Customer</label>
+                        <p class="text-sm">${transaction.profiles?.first_name || ''} ${transaction.profiles?.last_name || ''}</p>
+                        <p class="text-xs text-gray-500">${transaction.profiles?.email || ''}</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Amount</label>
+                        <p class="text-lg font-semibold text-green-600">
+                            $${transaction.amount.toFixed(2)}
+                        </p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Payment Method</label>
+                        <p class="text-sm">${transaction.payment_method?.replace('_', ' ') || ''}</p>
+                    </div>
+                    ${transaction.crypto_type ? `
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Cryptocurrency</label>
+                        <p class="text-sm">${transaction.crypto_type}</p>
+                    </div>
+                    ` : ''}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Created</label>
+                        <p class="text-sm">${new Date(transaction.created_at).toLocaleString()}</p>
+                    </div>
+                    ${transaction.rejection_reason ? `
+                    <div class="col-span-2">
+                        <label class="block text-sm font-medium text-gray-700">Rejection Reason</label>
+                        <p class="text-sm text-red-600">${transaction.rejection_reason}</p>
+                    </div>
+                    ` : ''}
+                </div>
+                ${transaction.payment_proof ? `
+                <div class="mt-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Payment Proof</label>
+                    <img src="${transaction.payment_proof}" alt="Payment Proof" class="max-w-full h-48 object-contain border rounded">
+                </div>
+                ` : ''}
+            </div>
+        `;
+        
+        modal.classList.remove('hidden');
+
+    } catch (error) {
+        console.error('Error viewing transaction:', error);
+        showNotification('Error loading transaction details', 'error');
+    }
+}
+
+// View payment proof
+function viewProof(proofUrl) {
+    const modal = document.getElementById('image-modal');
+    const img = document.getElementById('proof-image');
+    img.src = proofUrl;
+    modal.classList.remove('hidden');
+}
+
+// Modal functions
+function closeModal() {
+    document.getElementById('transaction-modal').classList.add('hidden');
+}
+
+function closeImageModal() {
+    document.getElementById('image-modal').classList.add('hidden');
+}
+
+function showLoginModal() {
+    document.getElementById('login-modal').classList.remove('hidden');
+}
+
+// Utility functions
+function showNotification(message, type = 'info') {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 fade-in ${
+        type === 'success' ? 'bg-green-500 text-white' :
+        type === 'error' ? 'bg-red-500 text-white' :
+        type === 'warning' ? 'bg-yellow-500 text-white' :
+        'bg-blue-500 text-white'
+    }`;
+    notification.textContent = message;
+
+    document.body.appendChild(notification);
+
+    // Remove after 5 seconds
+    setTimeout(() => {
+        notification.remove();
+    }, 5000);
+}
+
+function logout() {
+    isLoggedIn = false;
+    showLoginModal();
+    showNotification('Logged out successfully', 'success');
+}
+
+// Close modals when clicking outside
+document.addEventListener('click', function(event) {
+    const modals = ['transaction-modal', 'image-modal'];
+    modals.forEach(modalId => {
+        const modal = document.getElementById(modalId);
+        if (event.target === modal) {
+            if (modalId === 'transaction-modal') closeModal();
+            if (modalId === 'image-modal') closeImageModal();
+        }
+    });
+});
+
+// Initialize dashboard when page loads
+document.addEventListener('DOMContentLoaded', initializeAdmin);
+</script>
+</body>
+</html>

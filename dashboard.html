@@ -62,7 +62,7 @@
               </svg>
               Investments
             </a>
-            <a href="#" class="flex items-center px-4 py-3 text-sm font-medium rounded-lg text-blue-200 hover:bg-blue-800 hover:text-white">
+            <a href="/admin.html" class="flex items-center px-4 py-3 text-sm font-medium rounded-lg text-blue-200 hover:bg-blue-800 hover:text-white">
               <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
               </svg>
@@ -130,7 +130,7 @@
               </svg>
               Investments
             </a>
-            <a href="#" class="flex items-center px-4 py-3 text-sm font-medium rounded-lg text-blue-700 hover:bg-blue-100">
+            <a href="/admin.html" class="flex items-center px-4 py-3 text-sm font-medium rounded-lg text-blue-700 hover:bg-blue-100">
               <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
               </svg>
@@ -400,6 +400,161 @@
                 Proceed to Deposit
               </button>
             </div>
+
+            <!-- Withdrawal Button -->
+            <div class="mt-4">
+              <button id="withdraw-btn" class="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-medium py-3 px-6 rounded-lg transition transform hover:scale-[1.01]">
+                Withdraw Funds
+              </button>
+            </div>
+            <script>
+              // Withdrawal modal logic
+              document.addEventListener('DOMContentLoaded', function () {
+                const withdrawBtn = document.getElementById('withdraw-btn');
+                if (withdrawBtn) {
+                  withdrawBtn.addEventListener('click', openWithdrawModal);
+                }
+              });
+
+              function openWithdrawModal() {
+                const modalHtml = `
+                  <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div class="bg-white rounded-xl shadow-xl w-full max-w-md p-6 animate__animated animate__fadeInUp">
+                      <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-bold text-gray-900">Withdraw Funds</h3>
+                        <button id="close-withdraw-modal" class="text-gray-500 hover:text-gray-700">✕</button>
+                      </div>
+                      <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Amount ($)</label>
+                        <input id="withdraw-amount" type="number" min="10" max="${currentUserBalance.toFixed(2)}"
+                          class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          placeholder="Enter amount (min $10)">
+                      </div>
+                      <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Withdrawal Method</label>
+                        <select id="withdraw-method" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                          <option value="bank">Bank Transfer</option>
+                          <option value="crypto">Cryptocurrency</option>
+                        </select>
+                      </div>
+                      <div id="withdraw-details" class="mb-4">
+                        <!-- Dynamic details will appear here -->
+                      </div>
+                      <div id="withdraw-error" class="text-red-600 mb-4 hidden"></div>
+                      <div class="mt-6 flex justify-end space-x-3">
+                        <button id="cancel-withdraw" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">
+                          Cancel
+                        </button>
+                        <button id="confirm-withdraw" class="px-4 py-2 text-sm font-medium text-white bg-yellow-500 rounded-lg hover:bg-yellow-600">
+                          Submit Withdrawal
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                `;
+                const modal = document.createElement('div');
+                modal.innerHTML = modalHtml;
+                document.body.appendChild(modal);
+
+                // Dynamic details
+                const withdrawMethod = modal.querySelector('#withdraw-method');
+                const withdrawDetails = modal.querySelector('#withdraw-details');
+                function updateDetails() {
+                  if (withdrawMethod.value === 'crypto') {
+                    withdrawDetails.innerHTML = `
+                      <label class="block text-sm font-medium text-gray-700 mb-1">Crypto Address</label>
+                      <input id="withdraw-crypto-address" type="text" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Enter your wallet address">
+                      <label class="block text-sm font-medium text-gray-700 mb-1 mt-3">Select Coin</label>
+                      <select id="withdraw-crypto-type" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="bitcoin">Bitcoin (BTC)</option>
+                        <option value="ethereum">Ethereum (ETH)</option>
+                        <option value="usdt">Tether (USDT)</option>
+                        <option value="bnb">BNB (BNB)</option>
+                      </select>
+                    `;
+                  } else {
+                    withdrawDetails.innerHTML = `
+                      <label class="block text-sm font-medium text-gray-700 mb-1">Bank Account Number</label>
+                      <input id="withdraw-bank-account" type="text" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Enter your bank account number">
+                      <label class="block text-sm font-medium text-gray-700 mb-1 mt-3">Bank Name</label>
+                      <input id="withdraw-bank-name" type="text" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Enter your bank name">
+                    `;
+                  }
+                }
+                withdrawMethod.addEventListener('change', updateDetails);
+                updateDetails();
+
+                // Close modal
+                modal.querySelector('#close-withdraw-modal').onclick = () => modal.remove();
+                modal.querySelector('#cancel-withdraw').onclick = () => modal.remove();
+
+                // Submit withdrawal
+                modal.querySelector('#confirm-withdraw').onclick = async () => {
+                  const errorEl = modal.querySelector('#withdraw-error');
+                  errorEl.classList.add('hidden');
+                  const amount = parseFloat(modal.querySelector('#withdraw-amount').value);
+                  if (isNaN(amount) || amount < 10) {
+                    errorEl.textContent = 'Minimum withdrawal is $10';
+                    errorEl.classList.remove('hidden');
+                    return;
+                  }
+                  if (amount > currentUserBalance) {
+                    errorEl.textContent = 'Insufficient balance';
+                    errorEl.classList.remove('hidden');
+                    return;
+                  }
+                  let details = {};
+                  if (withdrawMethod.value === 'crypto') {
+                    const address = modal.querySelector('#withdraw-crypto-address').value.trim();
+                    const coin = modal.querySelector('#withdraw-crypto-type').value;
+                    if (!address) {
+                      errorEl.textContent = 'Please enter your crypto address';
+                      errorEl.classList.remove('hidden');
+                      return;
+                    }
+                    details = { address, coin };
+                  } else {
+                    const account = modal.querySelector('#withdraw-bank-account').value.trim();
+                    const bank = modal.querySelector('#withdraw-bank-name').value.trim();
+                    if (!account || !bank) {
+                      errorEl.textContent = 'Please enter your bank details';
+                      errorEl.classList.remove('hidden');
+                      return;
+                    }
+                    details = { account, bank };
+                  }
+                  // Create withdrawal transaction (pending)
+                  try {
+                    const { error } = await supabaseClient
+                      .from('transactions')
+                      .insert([{
+                        user_id: currentUser.id,
+                        amount: -amount,
+                        type: 'withdrawal',
+                        status: 'pending',
+                        description: withdrawMethod.value === 'crypto'
+                          ? `Withdrawal to ${details.coin} address: ${details.address}`
+                          : `Withdrawal to bank: ${details.bank}, account: ${details.account}`,
+                        withdrawal_method: withdrawMethod.value,
+                        withdrawal_details: JSON.stringify(details),
+                        created_at: new Date().toISOString()
+                      }]);
+                    if (error) throw error;
+                    // Optionally update balance immediately (or after admin approval)
+                    await updateUserBalance(-amount);
+                    alert('Withdrawal request submitted! You will be notified once processed.');
+                    modal.remove();
+                  } catch (err) {
+                    errorEl.textContent = 'Error submitting withdrawal. Please try again.';
+                    errorEl.classList.remove('hidden');
+                  }
+                };
+                // Close modal on background click
+                modal.addEventListener('click', (e) => {
+                  if (e.target === modal) modal.remove();
+                });
+              }
+            </script>
           </div>
         </div>
 
@@ -1824,6 +1979,8 @@ function openInvestAmountModal() {
     element.classList.remove('hidden');
   }
 }
+
+
 
   </script>
 </body>

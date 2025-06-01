@@ -1,0 +1,1189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/supabase-js/2.39.0/supabase.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .nav-btn.active {
+            background-color: #3b82f6;
+            color: white;
+        }
+        
+        .status-pending { background-color: #fef3c7; color: #92400e; }
+        .status-completed { background-color: #d1fae5; color: #065f46; }
+        .status-rejected { background-color: #fee2e2; color: #991b1b; }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            min-width: 300px;
+            padding: 16px;
+            border-radius: 8px;
+            color: white;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        .notification.success { background-color: #10b981; }
+        .notification.error { background-color: #ef4444; }
+        .notification.info { background-color: #3b82f6; }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b">
+        <div class="flex items-center justify-between px-6 py-4">
+            <div>
+                <h1 id="page-title" class="text-2xl font-bold text-gray-900">Dashboard</h1>
+                <p class="text-sm text-gray-500">Last updated: <span id="last-updated">--:--:--</span></p>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button onclick="refreshData()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                    <i class="fas fa-refresh mr-2"></i>Refresh
+                </button>
+                <button onclick="logout()" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
+                    <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex">
+        <!-- Sidebar -->
+        <nav class="w-64 bg-white shadow-sm min-h-screen">
+            <div class="p-6">
+                <div class="space-y-2">
+                    <button onclick="showSection('dashboard')" class="nav-btn w-full flex items-center px-4 py-3 text-left rounded-lg hover:bg-gray-100 active">
+                        <i class="fas fa-tachometer-alt mr-3"></i>Dashboard
+                    </button>
+                    <button onclick="showSection('deposits')" class="nav-btn w-full flex items-center px-4 py-3 text-left rounded-lg hover:bg-gray-100">
+                        <i class="fas fa-arrow-down mr-3"></i>Pending Deposits
+                        <span id="pending-count" class="ml-auto bg-red-500 text-white text-xs px-2 py-1 rounded-full">0</span>
+                    </button>
+                    <button onclick="showSection('withdrawals')" class="nav-btn w-full flex items-center px-4 py-3 text-left rounded-lg hover:bg-gray-100">
+                        <i class="fas fa-arrow-up mr-3"></i>Pending Withdrawals
+                        <span id="withdrawal-count" class="ml-auto bg-red-500 text-white text-xs px-2 py-1 rounded-full">0</span>
+                    </button>
+                    <button onclick="showSection('transactions')" class="nav-btn w-full flex items-center px-4 py-3 text-left rounded-lg hover:bg-gray-100">
+                        <i class="fas fa-list mr-3"></i>All Transactions
+                    </button>
+                    <button onclick="showSection('users')" class="nav-btn w-full flex items-center px-4 py-3 text-left rounded-lg hover:bg-gray-100">
+                        <i class="fas fa-users mr-3"></i>User Management
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-6">
+            <!-- Dashboard Section -->
+            <div id="dashboard-section" class="section-content">
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-xl shadow-sm">
+                        <div class="flex items-center">
+                            <div class="p-3 bg-yellow-100 rounded-lg">
+                                <i class="fas fa-clock text-yellow-600"></i>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm text-gray-600">Pending Deposits</p>
+                                <p id="stats-pending-deposits" class="text-2xl font-bold text-gray-900">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-xl shadow-sm">
+                        <div class="flex items-center">
+                            <div class="p-3 bg-green-100 rounded-lg">
+                                <i class="fas fa-dollar-sign text-green-600"></i>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm text-gray-600">Today's Deposits</p>
+                                <p id="stats-today-deposits" class="text-2xl font-bold text-gray-900">$0.00</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-xl shadow-sm">
+                        <div class="flex items-center">
+                            <div class="p-3 bg-red-100 rounded-lg">
+                                <i class="fas fa-arrow-up text-red-600"></i>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm text-gray-600">Pending Withdrawals</p>
+                                <p id="stats-pending-withdrawals" class="text-2xl font-bold text-gray-900">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-xl shadow-sm">
+                        <div class="flex items-center">
+                            <div class="p-3 bg-blue-100 rounded-lg">
+                                <i class="fas fa-users text-blue-600"></i>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm text-gray-600">Active Users</p>
+                                <p id="stats-active-users" class="text-2xl font-bold text-gray-900">0</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="bg-white rounded-xl shadow-sm p-6">
+                    <h3 class="text-lg font-semibold mb-4">Recent Activity</h3>
+                    <div id="recent-activity" class="space-y-3">
+                        <!-- Recent activity items will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pending Deposits Section -->
+            <div id="deposits-section" class="section-content hidden">
+                <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                    <div class="p-6 border-b">
+                        <h3 class="text-lg font-semibold">Pending Deposits</h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Method</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Proof</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="deposits-table" class="divide-y divide-gray-200">
+                                <!-- Deposits will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pending Withdrawals Section -->
+            <div id="withdrawals-section" class="section-content hidden">
+                <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                    <div class="p-6 border-b">
+                        <h3 class="text-lg font-semibold">Pending Withdrawals</h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Method</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Wallet</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="withdrawals-table" class="divide-y divide-gray-200">
+                                <!-- Withdrawals will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- All Transactions Section -->
+            <div id="transactions-section" class="section-content hidden">
+                <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                    <div class="p-6 border-b">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-lg font-semibold">All Transactions</h3>
+                            <div class="flex space-x-4">
+                                <select id="filter-status" onchange="filterTransactions()" class="px-3 py-2 border rounded-lg">
+                                    <option value="">All Status</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="completed">Completed</option>
+                                    <option value="rejected">Rejected</option>
+                                </select>
+                                <select id="filter-type" onchange="filterTransactions()" class="px-3 py-2 border rounded-lg">
+                                    <option value="">All Types</option>
+                                    <option value="deposit">Deposits</option>
+                                    <option value="withdrawal">Withdrawals</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="all-transactions-table" class="divide-y divide-gray-200">
+                                <!-- Transactions will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Users Section -->
+            <div id="users-section" class="section-content hidden">
+                <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                    <div class="p-6 border-b">
+                        <h3 class="text-lg font-semibold">User Management</h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">User</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Balance</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Joined</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="users-table" class="divide-y divide-gray-200">
+                                <!-- Users will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Transaction Details Modal -->
+    <div id="transaction-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-screen overflow-y-auto m-4">
+            <div class="p-6 border-b">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-semibold">Transaction Details</h3>
+                    <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div id="modal-content" class="p-6">
+                <!-- Transaction details will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Balance Adjustment Modal -->
+    <div id="balance-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-md m-4">
+            <div class="p-6 border-b">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-semibold">Adjust Balance</h3>
+                    <button onclick="closeBalanceModal()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="p-6">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">User</label>
+                        <p id="balance-user-info" class="text-sm text-gray-600"></p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Current Balance</label>
+                        <p id="current-balance" class="text-lg font-semibold text-green-600"></p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Adjustment Amount</label>
+                        <input id="adjustment-amount" type="number" step="0.01" class="w-full px-4 py-2 border rounded-lg" placeholder="Enter amount (+ or -)">
+                        <p class="text-xs text-gray-500 mt-1">Use positive numbers to add, negative to subtract</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Reason</label>
+                        <textarea id="adjustment-reason" class="w-full px-4 py-2 border rounded-lg" rows="3" placeholder="Enter reason for adjustment"></textarea>
+                    </div>
+                    <div class="flex justify-end space-x-3">
+                        <button onclick="closeBalanceModal()" class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">
+                            Cancel
+                        </button>
+                        <button onclick="submitBalanceAdjustment()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                            Adjust Balance
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Modal -->
+    <div id="image-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl shadow-xl max-w-4xl max-h-screen overflow-y-auto m-4">
+            <div class="p-4 border-b">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-semibold">Payment Proof</h3>
+                    <button onclick="closeImageModal()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="p-4">
+                <img id="proof-image" src="" alt="Payment Proof" class="max-w-full h-auto">
+            </div>
+        </div>
+    </div>
+
+<script>
+// Initialize Supabase client
+const supabaseUrl = 'https://xjonomapbiphywjhezfj.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhqb25vbWFwYmlwaHl3amhlemZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgxNTMzMTEsImV4cCI6MjA2MzcyOTMxMX0.iv93r6S6SFDeE44KfN7XrTG9LEy75wzvqXIfdADGcCo';
+const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+// Global variables
+let currentUser = null;
+let allTransactions = [];
+let allUsers = [];
+let selectedTransactionId = null;
+let selectedUserId = null;
+
+// Hardcoded admin credentials
+const ADMIN_CREDENTIALS = {
+    username: 'Admin',
+    password: 'Admin1'
+};
+
+// Initialize admin dashboard with autonomous login
+async function initializeAdmin() {
+    try {
+        // Show loading notification
+        showNotification('Logging in as admin...', 'info');
+        
+        // Simulate autonomous login with hardcoded credentials
+        if (await authenticateAdmin(ADMIN_CREDENTIALS.username, ADMIN_CREDENTIALS.password)) {
+            // Mock user object for admin
+            currentUser = {
+                id: 'admin-user-id',
+                email: 'admin@system.local',
+                role: 'admin'
+            };
+            
+            showNotification('Admin login successful!', 'success');
+            
+            // Load dashboard data
+            await refreshData();
+            updateLastUpdated();
+            
+            // Set up auto-refresh
+            setInterval(() => {
+                refreshData();
+                updateLastUpdated();
+            }, 30000);
+            
+        } else {
+            throw new Error('Admin authentication failed');
+        }
+        
+    } catch (error) {
+        console.error('Error initializing admin:', error);
+        showNotification('Error loading dashboard: ' + error.message, 'error');
+    }
+}
+
+// Autonomous admin authentication
+async function authenticateAdmin(username, password) {
+    // Simulate authentication delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // Check credentials
+    if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
+        return true;
+    }
+    
+    return false;
+}
+
+// Navigation
+function showSection(sectionName) {
+    // Hide all sections
+    document.querySelectorAll('.section-content').forEach(section => {
+        section.classList.add('hidden');
+    });
+
+    // Remove active class from all nav buttons
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+
+    // Show selected section
+    document.getElementById(`${sectionName}-section`).classList.remove('hidden');
+    
+    // Add active class to clicked nav button
+    event.target.closest('.nav-btn').classList.add('active');
+
+    // Update page title
+    const titles = {
+        'dashboard': 'Dashboard',
+        'deposits': 'Pending Deposits',
+        'withdrawals': 'Pending Withdrawals',
+        'transactions': 'All Transactions',
+        'users': 'User Management'
+    };
+    document.getElementById('page-title').textContent = titles[sectionName];
+}
+
+// Refresh all data
+async function refreshData() {
+    try {
+        await Promise.all([
+            loadDashboardStats(),
+            loadPendingDeposits(),
+            loadPendingWithdrawals(),
+            loadAllTransactions(),
+            loadUsers()
+        ]);
+    } catch (error) {
+        console.error('Error refreshing data:', error);
+        showNotification('Error refreshing data', 'error');
+    }
+}
+
+// Load dashboard statistics
+async function loadDashboardStats() {
+    try {
+        // Simulate loading data from Supabase
+        // In a real scenario, these would be actual database queries
+        
+        // Mock data for demonstration
+        const mockStats = {
+            pendingDeposits: Math.floor(Math.random() * 10),
+            todayDeposits: (Math.random() * 5000).toFixed(2),
+            pendingWithdrawals: Math.floor(Math.random() * 5),
+            activeUsers: Math.floor(Math.random() * 100) + 50
+        };
+
+        // Update stats
+        document.getElementById('stats-pending-deposits').textContent = mockStats.pendingDeposits;
+        document.getElementById('stats-today-deposits').textContent = '$' + mockStats.todayDeposits;
+        document.getElementById('stats-pending-withdrawals').textContent = mockStats.pendingWithdrawals;
+        document.getElementById('stats-active-users').textContent = mockStats.activeUsers;
+
+        // Update sidebar counters
+        document.getElementById('pending-count').textContent = mockStats.pendingDeposits;
+        document.getElementById('withdrawal-count').textContent = mockStats.pendingWithdrawals;
+
+        // Load recent activity
+        await loadRecentActivity();
+
+    } catch (error) {
+        console.error('Error loading dashboard stats:', error);
+        showNotification('Error loading dashboard statistics', 'error');
+    }
+}
+
+// Load recent activity
+async function loadRecentActivity() {
+    try {
+        // Mock recent transactions data
+        const mockTransactions = [
+            {
+                id: '1',
+                type: 'deposit',
+                amount: 150.00,
+                status: 'completed',
+                description: 'Bank transfer deposit',
+                profiles: { email: 'user1@example.com' },
+                created_at: new Date().toISOString()
+            },
+            {
+                id: '2',
+                type: 'withdrawal',
+                amount: 75.00,
+                status: 'pending',
+                description: 'Bitcoin withdrawal',
+                profiles: { email: 'user2@example.com' },
+                created_at: new Date(Date.now() - 3600000).toISOString()
+            }
+        ];
+
+        const activityContainer = document.getElementById('recent-activity');
+        activityContainer.innerHTML = '';
+
+        if (!mockTransactions || mockTransactions.length === 0) {
+            activityContainer.innerHTML = '<p class="text-gray-500 text-center py-4">No recent activity</p>';
+            return;
+        }
+
+        mockTransactions.forEach(transaction => {
+            const activityItem = document.createElement('div');
+            activityItem.className = 'flex items-center justify-between p-3 bg-gray-50 rounded-lg';
+            activityItem.innerHTML = `
+                <div class="flex items-center">
+                    <div class="w-8 h-8 rounded-full ${transaction.type === 'deposit' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'} flex items-center justify-center mr-3">
+                        <i class="fas ${transaction.type === 'deposit' ? 'fa-arrow-down' : 'fa-arrow-up'} text-sm"></i>
+                    </div>
+                    <div>
+                        <p class="font-medium">${transaction.profiles?.email || 'Unknown User'}</p>
+                        <p class="text-sm text-gray-600">${transaction.description}</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <p class="font-semibold">$${transaction.amount.toFixed(2)}</p>
+                    <span class="text-xs px-2 py-1 rounded-full status-${transaction.status}">${transaction.status}</span>
+                </div>
+            `;
+            activityContainer.appendChild(activityItem);
+        });
+
+    } catch (error) {
+        console.error('Error loading recent activity:', error);
+        showNotification('Error loading recent activity', 'error');
+    }
+}
+
+// Load pending deposits
+async function loadPendingDeposits() {
+    try {
+        // Mock pending deposits data
+        const mockDeposits = [
+            {
+                id: 'dep_1',
+                amount: 200.00,
+                payment_method: 'bank_transfer',
+                crypto_type: null,
+                created_at: new Date().toISOString(),
+                payment_proof: 'https://via.placeholder.com/400x300',
+                user_id: 'user_1',
+                profiles: {
+                    first_name: 'John',
+                    last_name: 'Doe',
+                    email: 'john@example.com'
+                }
+            },
+            {
+                id: 'dep_2',
+                amount: 500.00,
+                payment_method: 'crypto',
+                crypto_type: 'Bitcoin',
+                created_at: new Date(Date.now() - 7200000).toISOString(),
+                payment_proof: 'https://via.placeholder.com/400x300',
+                user_id: 'user_2',
+                profiles: {
+                    first_name: 'Jane',
+                    last_name: 'Smith',
+                    email: 'jane@example.com'
+                }
+            }
+        ];
+
+        const tableBody = document.getElementById('deposits-table');
+        tableBody.innerHTML = '';
+
+        if (!mockDeposits || mockDeposits.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-500">No pending deposits</td></tr>';
+            return;
+        }
+
+        mockDeposits.forEach(deposit => {
+            const row = document.createElement('tr');
+            row.className = 'hover:bg-gray-50';
+            row.innerHTML = `
+                <td class="px-6 py-4">
+                    <div>
+                        <p class="font-medium">${deposit.profiles?.first_name || ''} ${deposit.profiles?.last_name || ''}</p>
+                        <p class="text-sm text-gray-500">${deposit.profiles?.email}</p>
+                    </div>
+                </td>
+                <td class="px-6 py-4 font-semibold text-green-600">${deposit.amount.toFixed(2)}</td>
+                <td class="px-6 py-4">
+                    <span class="text-sm">${deposit.payment_method.replace('_', ' ')}</span>
+                    ${deposit.crypto_type ? `<br><span class="text-xs text-gray-500">${deposit.crypto_type}</span>` : ''}
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-500">${new Date(deposit.created_at).toLocaleDateString()}</td>
+                <td class="px-6 py-4">
+                    ${deposit.payment_proof ? 
+                        `<button onclick="viewProof('${deposit.payment_proof}')" class="text-blue-600 hover:text-blue-800 text-sm">View Proof</button>` :
+                        '<span class="text-gray-400 text-sm">No proof</span>'
+                    }
+                </td>
+                <td class="px-6 py-4">
+                    <div class="flex space-x-2">
+                        <button onclick="viewTransaction('${deposit.id}')" class="px-3 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600">
+                            View
+                        </button>
+                        <button onclick="approveTransaction('${deposit.id}', 'deposit')" class="px-3 py-1 bg-green-500 text-white text-xs rounded hover:bg-green-600">
+                            Approve
+                        </button>
+                        <button onclick="rejectTransaction('${deposit.id}', 'deposit')" class="px-3 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600">
+                            Reject
+                        </button>
+                    </div>
+                </td>
+            `;
+            tableBody.appendChild(row);
+        });
+
+    } catch (error) {
+        console.error('Error loading pending deposits:', error);
+        showNotification('Error loading pending deposits', 'error');
+    }
+}
+
+// Load pending withdrawals
+async function loadPendingWithdrawals() {
+    try {
+        // Mock pending withdrawals data
+        const mockWithdrawals = [
+            {
+                id: 'with_1',
+                amount: 150.00,
+                payment_method: 'crypto',
+                crypto_type: 'Bitcoin',
+                wallet_address: '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa',
+                created_at: new Date().toISOString(),
+                user_id: 'user_1',
+                profiles: {
+                    first_name: 'Alice',
+                    last_name: 'Johnson',
+                    email: 'alice@example.com'
+                }
+            },
+            {
+                id: 'with_2',
+                amount: 300.00,
+                payment_method: 'bank_transfer',
+                crypto_type: null,
+                wallet_address: null,
+                bank_details: 'Account: ****1234',
+                created_at: new Date(Date.now() - 3600000).toISOString(),
+                user_id: 'user_2',
+                profiles: {
+                    first_name: 'Bob',
+                    last_name: 'Wilson',
+                    email: 'bob@example.com'
+                }
+            }
+        ];
+
+        const tableBody = document.getElementById('withdrawals-table');
+        tableBody.innerHTML = '';
+
+        if (!mockWithdrawals || mockWithdrawals.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-500">No pending withdrawals</td></tr>';
+            return;
+        }
+
+        mockWithdrawals.forEach(withdrawal => {
+            const row = document.createElement('tr');
+            row.className = 'hover:bg-gray-50';
+            row.innerHTML = `
+                <td class="px-6 py-4">
+                    <div>
+                        <p class="font-medium">${withdrawal.profiles?.first_name || ''} ${withdrawal.profiles?.last_name || ''}</p>
+                        <p class="text-sm text-gray-500">${withdrawal.profiles?.email}</p>
+                    </div>
+                </td>
+                <td class="px-6 py-4 font-semibold text-red-600">${withdrawal.amount.toFixed(2)}</td>
+                <td class="px-6 py-4">
+                    <span class="text-sm">${withdrawal.payment_method.replace('_', ' ')}</span>
+                    ${withdrawal.crypto_type ? `<br><span class="text-xs text-gray-500">${withdrawal.crypto_type}</span>` : ''}
+                </td>
+                <td class="px-6 py-4">
+                    <div class="text-sm text-gray-600">
+                        ${withdrawal.wallet_address ? 
+                            `<span class="font-mono text-xs">${withdrawal.wallet_address.substring(0, 10)}...</span>` :
+                            (withdrawal.bank_details || 'N/A')
+                        }
+                    </div>
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-500">${new Date(withdrawal.created_at).toLocaleDateString()}</td>
+                <td class="px-6 py-4">
+                    <div class="flex space-x-2">
+                        <button onclick="viewTransaction('${withdrawal.id}')" class="px-3 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600">
+                            View
+                        </button>
+                        <button onclick="approveTransaction('${withdrawal.id}', 'withdrawal')" class="px-3 py-1 bg-green-500 text-white text-xs rounded hover:bg-green-600">
+                            Approve
+                        </button>
+                        <button onclick="rejectTransaction('${withdrawal.id}', 'withdrawal')" class="px-3 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600">
+                            Reject
+                        </button>
+                    </div>
+                </td>
+            `;
+            tableBody.appendChild(row);
+        });
+
+    } catch (error) {
+        console.error('Error loading pending withdrawals:', error);
+        showNotification('Error loading pending withdrawals', 'error');
+    }
+}
+
+// Load all transactions
+async function loadAllTransactions() {
+    try {
+        // Mock all transactions data
+        const mockTransactions = [
+            {
+                id: 'trans_1',
+                type: 'deposit',
+                amount: 200.00,
+                status: 'completed',
+                created_at: new Date().toISOString(),
+                profiles: { first_name: 'John', last_name: 'Doe', email: 'john@example.com' }
+            },
+            {
+                id: 'trans_2',
+                type: 'withdrawal',
+                amount: 150.00,
+                status: 'pending',
+                created_at: new Date(Date.now() - 3600000).toISOString(),
+                profiles: { first_name: 'Alice', last_name: 'Johnson', email: 'alice@example.com' }
+            },
+            {
+                id: 'trans_3',
+                type: 'deposit',
+                amount: 500.00,
+                status: 'rejected',
+                created_at: new Date(Date.now() - 7200000).toISOString(),
+                profiles: { first_name: 'Jane', last_name: 'Smith', email: 'jane@example.com' }
+            },
+            {
+                id: 'trans_4',
+                type: 'withdrawal',
+                amount: 300.00,
+                status: 'completed',
+                created_at: new Date(Date.now() - 86400000).toISOString(),
+                profiles: { first_name: 'Bob', last_name: 'Wilson', email: 'bob@example.com' }
+            }
+        ];
+
+        allTransactions = mockTransactions;
+        displayTransactions(allTransactions);
+
+    } catch (error) {
+        console.error('Error loading all transactions:', error);
+        showNotification('Error loading transactions', 'error');
+    }
+}
+
+// Display transactions in table
+function displayTransactions(transactions) {
+    const tableBody = document.getElementById('all-transactions-table');
+    tableBody.innerHTML = '';
+
+    if (!transactions || transactions.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="7" class="px-6 py-8 text-center text-gray-500">No transactions found</td></tr>';
+        return;
+    }
+
+    transactions.forEach(transaction => {
+        const row = document.createElement('tr');
+        row.className = 'hover:bg-gray-50';
+        row.innerHTML = `
+            <td class="px-6 py-4 text-sm font-mono">${transaction.id}</td>
+            <td class="px-6 py-4">
+                <div>
+                    <p class="font-medium">${transaction.profiles?.first_name || ''} ${transaction.profiles?.last_name || ''}</p>
+                    <p class="text-sm text-gray-500">${transaction.profiles?.email}</p>
+                </div>
+            </td>
+            <td class="px-6 py-4">
+                <span class="text-sm capitalize">${transaction.type}</span>
+            </td>
+            <td class="px-6 py-4 font-semibold ${transaction.type === 'deposit' ? 'text-green-600' : 'text-red-600'}">
+                ${transaction.amount.toFixed(2)}
+            </td>
+            <td class="px-6 py-4">
+                <span class="text-xs px-2 py-1 rounded-full status-${transaction.status}">${transaction.status}</span>
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-500">${new Date(transaction.created_at).toLocaleDateString()}</td>
+            <td class="px-6 py-4">
+                <div class="flex space-x-2">
+                    <button onclick="viewTransaction('${transaction.id}')" class="px-3 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600">
+                        View
+                    </button>
+                    ${transaction.status === 'pending' ? `
+                        <button onclick="approveTransaction('${transaction.id}', '${transaction.type}')" class="px-3 py-1 bg-green-500 text-white text-xs rounded hover:bg-green-600">
+                            Approve
+                        </button>
+                        <button onclick="rejectTransaction('${transaction.id}', '${transaction.type}')" class="px-3 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600">
+                            Reject
+                        </button>
+                    ` : ''}
+                </div>
+            </td>
+        `;
+        tableBody.appendChild(row);
+    });
+}
+
+// Filter transactions
+function filterTransactions() {
+    const statusFilter = document.getElementById('filter-status').value;
+    const typeFilter = document.getElementById('filter-type').value;
+
+    let filteredTransactions = allTransactions;
+
+    if (statusFilter) {
+        filteredTransactions = filteredTransactions.filter(t => t.status === statusFilter);
+    }
+
+    if (typeFilter) {
+        filteredTransactions = filteredTransactions.filter(t => t.type === typeFilter);
+    }
+
+    displayTransactions(filteredTransactions);
+}
+
+// Load users
+async function loadUsers() {
+    try {
+        // Mock users data
+        const mockUsers = [
+            {
+                id: 'user_1',
+                first_name: 'John',
+                last_name: 'Doe',
+                email: 'john@example.com',
+                balance: 1250.50,
+                created_at: new Date(Date.now() - 86400000 * 30).toISOString(),
+                status: 'active'
+            },
+            {
+                id: 'user_2',
+                first_name: 'Jane',
+                last_name: 'Smith',
+                email: 'jane@example.com',
+                balance: 850.25,
+                created_at: new Date(Date.now() - 86400000 * 15).toISOString(),
+                status: 'active'
+            },
+            {
+                id: 'user_3',
+                first_name: 'Alice',
+                last_name: 'Johnson',
+                email: 'alice@example.com',
+                balance: 2100.75,
+                created_at: new Date(Date.now() - 86400000 * 60).toISOString(),
+                status: 'suspended'
+            },
+            {
+                id: 'user_4',
+                first_name: 'Bob',
+                last_name: 'Wilson',
+                email: 'bob@example.com',
+                balance: 500.00,
+                created_at: new Date(Date.now() - 86400000 * 7).toISOString(),
+                status: 'active'
+            }
+        ];
+
+        allUsers = mockUsers;
+        const tableBody = document.getElementById('users-table');
+        tableBody.innerHTML = '';
+
+        if (!mockUsers || mockUsers.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-500">No users found</td></tr>';
+            return;
+        }
+
+        mockUsers.forEach(user => {
+            const row = document.createElement('tr');
+            row.className = 'hover:bg-gray-50';
+            row.innerHTML = `
+                <td class="px-6 py-4">
+                    <div>
+                        <p class="font-medium">${user.first_name} ${user.last_name}</p>
+                        <p class="text-sm text-gray-500">${user.email}</p>
+                    </div>
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-600">${user.email}</td>
+                <td class="px-6 py-4 font-semibold text-green-600">${user.balance.toFixed(2)}</td>
+                <td class="px-6 py-4 text-sm text-gray-500">${new Date(user.created_at).toLocaleDateString()}</td>
+                <td class="px-6 py-4">
+                    <span class="text-xs px-2 py-1 rounded-full ${user.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                        ${user.status}
+                    </span>
+                </td>
+                <td class="px-6 py-4">
+                    <div class="flex space-x-2">
+                        <button onclick="adjustBalance('${user.id}')" class="px-3 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600">
+                            Adjust Balance
+                        </button>
+                        <button onclick="toggleUserStatus('${user.id}', '${user.status}')" class="px-3 py-1 ${user.status === 'active' ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'} text-white text-xs rounded">
+                            ${user.status === 'active' ? 'Suspend' : 'Activate'}
+                        </button>
+                    </div>
+                </td>
+            `;
+            tableBody.appendChild(row);
+        });
+
+    } catch (error) {
+        console.error('Error loading users:', error);
+        showNotification('Error loading users', 'error');
+    }
+}
+
+// Transaction actions
+async function approveTransaction(transactionId, type) {
+    try {
+        // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        showNotification(`${type} approved successfully!`, 'success');
+        await refreshData();
+    } catch (error) {
+        console.error('Error approving transaction:', error);
+        showNotification('Error approving transaction', 'error');
+    }
+}
+
+async function rejectTransaction(transactionId, type) {
+    try {       
+        const reason = prompt('Please enter a reason for rejection:');
+        if (!reason) return;
+        
+        // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        showNotification(`${type} rejected successfully!`, 'success');
+        await refreshData();
+    } catch (error) {
+        console.error('Error rejecting transaction:', error);
+        showNotification('Error rejecting transaction', 'error');
+    }
+}
+
+// View transaction details
+function viewTransaction(transactionId) {
+    selectedTransactionId = transactionId;
+    
+    // Mock transaction details
+    const transactionDetails = {
+        id: transactionId,
+        type: 'deposit',
+        amount: 200.00,
+        status: 'pending',
+        payment_method: 'bank_transfer',
+        created_at: new Date().toISOString(),
+        payment_proof: 'https://via.placeholder.com/400x300',
+        user: {
+            name: 'John Doe',
+            email: 'john@example.com'
+        }
+    };
+
+    const modalContent = document.getElementById('modal-content');
+    modalContent.innerHTML = `
+        <div class="space-y-4">
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Transaction ID</label>
+                    <p class="text-sm font-mono">${transactionDetails.id}</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Type</label>
+                    <p class="text-sm capitalize">${transactionDetails.type}</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Amount</label>
+                    <p class="text-sm font-semibold">${transactionDetails.amount.toFixed(2)}</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Status</label>
+                    <span class="text-xs px-2 py-1 rounded-full status-${transactionDetails.status}">${transactionDetails.status}</span>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">User</label>
+                    <p class="text-sm">${transactionDetails.user.name}</p>
+                    <p class="text-xs text-gray-500">${transactionDetails.user.email}</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Date</label>
+                    <p class="text-sm">${new Date(transactionDetails.created_at).toLocaleString()}</p>
+                </div>
+            </div>
+            
+            ${transactionDetails.payment_proof ? `
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Payment Proof</label>
+                    <img src="${transactionDetails.payment_proof}" alt="Payment Proof" class="max-w-full h-auto border rounded-lg">
+                </div>
+            ` : ''}
+            
+            ${transactionDetails.status === 'pending' ? `
+                <div class="flex justify-end space-x-3 pt-4 border-t">
+                    <button onclick="rejectTransaction('${transactionDetails.id}', '${transactionDetails.type}'); closeModal();" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
+                        Reject
+                    </button>
+                    <button onclick="approveTransaction('${transactionDetails.id}', '${transactionDetails.type}'); closeModal();" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                        Approve
+                    </button>
+                </div>
+            ` : ''}
+        </div>
+    `;
+
+    document.getElementById('transaction-modal').classList.remove('hidden');
+}
+
+// Modal functions
+function closeModal() {
+    document.getElementById('transaction-modal').classList.add('hidden');
+    selectedTransactionId = null;
+}
+
+function viewProof(proofUrl) {
+    document.getElementById('proof-image').src = proofUrl;
+    document.getElementById('image-modal').classList.remove('hidden');
+}
+
+function closeImageModal() {
+    document.getElementById('image-modal').classList.add('hidden');
+}
+
+// Balance adjustment functions
+function adjustBalance(userId) {
+    selectedUserId = userId;
+    const user = allUsers.find(u => u.id === userId);
+    
+    if (!user) return;
+    
+    document.getElementById('balance-user-info').textContent = `${user.first_name} ${user.last_name} (${user.email})`;
+    document.getElementById('current-balance').textContent = `${user.balance.toFixed(2)}`;
+    document.getElementById('adjustment-amount').value = '';
+    document.getElementById('adjustment-reason').value = '';
+    
+    document.getElementById('balance-modal').classList.remove('hidden');
+}
+
+function closeBalanceModal() {
+    document.getElementById('balance-modal').classList.add('hidden');
+    selectedUserId = null;
+}
+
+async function submitBalanceAdjustment() {
+    try {
+        const amount = parseFloat(document.getElementById('adjustment-amount').value);
+        const reason = document.getElementById('adjustment-reason').value.trim();
+        
+        if (isNaN(amount) || amount === 0) {
+            showNotification('Please enter a valid adjustment amount', 'error');
+            return;
+        }
+        
+        if (!reason) {
+            showNotification('Please provide a reason for the adjustment', 'error');
+            return;
+        }
+        
+        // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Update user balance in mock data
+        const user = allUsers.find(u => u.id === selectedUserId);
+        if (user) {
+            user.balance += amount;
+        }
+        
+        showNotification('Balance adjusted successfully!', 'success');
+        closeBalanceModal();
+        await loadUsers();
+        
+    } catch (error) {
+        console.error('Error adjusting balance:', error);
+        showNotification('Error adjusting balance', 'error');
+    }
+}
+
+// Toggle user status
+async function toggleUserStatus(userId, currentStatus) {
+    try {
+        const newStatus = currentStatus === 'active' ? 'suspended' : 'active';
+        const action = newStatus === 'active' ? 'activate' : 'suspend';
+        
+        if (!confirm(`Are you sure you want to ${action} this user?`)) {
+            return;
+        }
+        
+        // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Update user status in mock data
+        const user = allUsers.find(u => u.id === userId);
+        if (user) {
+            user.status = newStatus;
+        }
+        
+        showNotification(`User ${action}d successfully!`, 'success');
+        await loadUsers();
+        
+    } catch (error) {
+        console.error('Error toggling user status:', error);
+        showNotification('Error updating user status', 'error');
+    }
+}
+
+// Utility functions
+function updateLastUpdated() {
+    const now = new Date();
+    document.getElementById('last-updated').textContent = now.toLocaleTimeString();
+}
+
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.innerHTML = `
+        <div class="flex items-center">
+            <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'} mr-2"></i>
+            <span>${message}</span>
+        </div>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.remove();
+    }, 5000);
+}
+
+function logout() {
+    if (confirm('Are you sure you want to logout?')) {
+        currentUser = null;
+        showNotification('Logged out successfully', 'info');
+        // In a real app, redirect to login page
+        location.reload();
+    }
+}
+
+// Initialize the dashboard when page loads
+document.addEventListener('DOMContentLoaded', initializeAdmin);
+</script>
+
+</body>
+</html>
