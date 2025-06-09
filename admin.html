@@ -8,6 +8,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.min.js"></script>
     <style>
+        .status-processing { color: #8b5cf6; background-color: #ede9fe; }
         .status-pending { color: #f59e0b; background-color: #fef3c7; }
         .status-completed { color: #10b981; background-color: #d1fae5; }
         .status-rejected { color: #ef4444; background-color: #fee2e2; }
@@ -304,7 +305,10 @@ async function initializeAdmin() {
         await loadPendingDeposits();
     } else if (currentTab === 'users') {
         await loadUsers();
+    } else if (currentTab === 'withdrawals') {
+        await loadWithdrawalRequests();
     }
+
 }
 
 // Tab switching functionality
@@ -332,8 +336,11 @@ function switchTab(tab) {
         loadPendingDeposits();
     } else if (tab === 'users') {
         loadUsers();
+    } else if (tab === 'withdrawals') {
+        loadWithdrawalRequests();
     }
 }
+
 
 // Attempt login with hardcoded credentials
 function attemptLogin() {
@@ -356,6 +363,8 @@ async function refreshData() {
             await loadPendingDeposits();
         } else if (currentTab === 'users') {
             await loadUsers();
+        } else if (currentTab === 'withdrawals') {
+            await loadWithdrawalRequests();
         }
     } catch (error) {
         console.error('Error refreshing data:', error);
@@ -966,6 +975,378 @@ function closeUserDetailsModal() {
 function showLoginModal() {
     document.getElementById('login-modal').classList.remove('hidden');
 }
+
+
+// Load withdrawal requests
+async function loadWithdrawalRequests() {
+    try {
+        const { data: withdrawals, error } = await supabaseClient
+            .from('transactions')
+            .select(`
+                *,
+                profiles:user_id (id, full_name, phone)
+            `)
+            .eq('type', 'withdrawal')
+            .in('status', ['pending', 'processing'])
+            .order('created_at', { ascending: false });
+        
+        if (error) throw error;
+
+        const tableBody = document.getElementById('withdrawals-table');
+        tableBody.innerHTML = '';
+
+        if (!withdrawals || withdrawals.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="7" class="px-6 py-8 text-center text-gray-500">No pending withdrawal requests</td></tr>';
+            return;
+        }
+
+        withdrawals.forEach(withdrawal => {
+            const row = document.createElement('tr');
+            row.className = 'hover:bg-gray-50';
+            row.innerHTML = `
+                <td class="px-6 py-4">
+                    <div>
+                        <p class="font-medium">${withdrawal.profiles?.full_name || 'Unknown User'}</p>
+                        <p class="text-sm text-gray-500">${withdrawal.profiles?.phone || 'No phone'}</p>
+                    </div>
+                </td>
+                <td class="px-6 py-4 font-semibold text-red-600">$${withdrawal.amount.toFixed(2)}</td>
+                <td class="px-6 py-4">
+                    <span class="text-sm">${withdrawal.payment_method?.replace('_', ' ') || ''}</span>
+                    ${withdrawal.crypto_type ? `<br><span class="text-xs text-gray-500">${withdrawal.crypto_type}</span>` : ''}
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-500">${new Date(withdrawal.created_at).toLocaleDateString()}</td>
+                <td class="px-6 py-4">
+                    <div class="text-sm">
+                        ${withdrawal.bank_name ? `<p><strong>Bank:</strong> ${withdrawal.bank_name}</p>` : ''}
+                        ${withdrawal.account_name ? `<p><strong>Name:</strong> ${withdrawal.account_name}</p>` : ''}
+                        ${withdrawal.account_number ? `<p><strong>Account:</strong> ${withdrawal.account_number}</p>` : ''}
+                        ${withdrawal.crypto_address ? `<p><strong>Address:</strong> ${withdrawal.crypto_address.substring(0, 15)}...</p>` : ''}
+                    </div>
+                </td>
+                <td class="px-6 py-4">
+                    <span class="px-2 py-1 text-xs rounded-full status-${withdrawal.status}">
+                        ${withdrawal.status.charAt(0).toUpperCase() + withdrawal.status.slice(1)}
+                    </span>
+                </td>
+                <td class="px-6 py-4">
+                    <div class="flex space-x-2">
+                        <button onclick="viewWithdrawal('${withdrawal.id}')" class="px-3 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600">
+                            View
+                        </button>
+                        ${withdrawal.status === 'pending' ? `
+                            <button onclick="approveWithdrawal('${withdrawal.id}')" class="px-3 py-1 bg-green-500 text-white text-xs rounded hover:bg-green-600">
+                                Approve
+                            </button>
+                            <button onclick="rejectWithdrawal('${withdrawal.id}')" class="px-3 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600">
+                                Reject
+                            </button>
+                        ` : `
+                            <button onclick="completeWithdrawal('${withdrawal.id}')" class="px-3 py-1 bg-purple-500 text-white text-xs rounded hover:bg-purple-600">
+                                Complete
+                            </button>
+                        `}
+                    </div>
+                </td>
+            `;
+            tableBody.appendChild(row);
+        });
+
+    } catch (error) {
+        console.error('Error loading withdrawal requests:', error);
+        showNotification('Error loading withdrawal requests', 'error');
+    }
+}
+
+// View withdrawal details
+async function viewWithdrawal(withdrawalId) {
+    try {
+        const { data: withdrawal, error } = await supabaseClient
+            .from('transactions')
+            .select(`
+                *,
+                profiles:user_id (id, email, full_name, phone)
+            `)
+            .eq('id', withdrawalId)
+            .single();
+            
+        if (error || !withdrawal) {
+            showNotification('Withdrawal not found', 'error');
+            return;
+        }
+
+        const modal = document.getElementById('withdrawal-modal');
+        const content = document.getElementById('withdrawal-modal-content');
+        
+        content.innerHTML = `
+            <div class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Transaction ID</label>
+                        <p class="text-sm font-mono">${withdrawal.id}</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Status</label>
+                        <span class="px-2 py-1 text-xs rounded-full status-${withdrawal.status}">
+                            ${withdrawal.status.charAt(0).toUpperCase() + withdrawal.status.slice(1)}
+                        </span>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Customer</label>
+                        <p class="text-sm">${withdrawal.profiles?.full_name || 'Unknown User'}</p>
+                        <p class="text-xs text-gray-500">${withdrawal.profiles?.email || ''}</p>
+                        <p class="text-xs text-gray-500">${withdrawal.profiles?.phone || ''}</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Amount</label>
+                        <p class="text-lg font-semibold text-red-600">$${withdrawal.amount.toFixed(2)}</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Payment Method</label>
+                        <p class="text-sm">${withdrawal.payment_method?.replace('_', ' ') || ''}</p>
+                    </div>
+                    ${withdrawal.crypto_type ? `
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Cryptocurrency</label>
+                        <p class="text-sm">${withdrawal.crypto_type}</p>
+                    </div>
+                    ` : ''}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Requested Date</label>
+                        <p class="text-sm">${new Date(withdrawal.created_at).toLocaleString()}</p>
+                    </div>
+                    ${withdrawal.updated_at && withdrawal.updated_at !== withdrawal.created_at ? `
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Last Updated</label>
+                        <p class="text-sm">${new Date(withdrawal.updated_at).toLocaleString()}</p>
+                    </div>
+                    ` : ''}
+                </div>
+
+                <!-- Bank Details -->
+                ${withdrawal.bank_name || withdrawal.account_name || withdrawal.account_number ? `
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h4 class="font-medium mb-2">Bank Details</h4>
+                    <div class="grid grid-cols-2 gap-2 text-sm">
+                        ${withdrawal.bank_name ? `
+                        <div>
+                            <label class="block text-gray-600">Bank Name</label>
+                            <p class="font-medium">${withdrawal.bank_name}</p>
+                        </div>
+                        ` : ''}
+                        ${withdrawal.account_name ? `
+                        <div>
+                            <label class="block text-gray-600">Account Name</label>
+                            <p class="font-medium">${withdrawal.account_name}</p>
+                        </div>
+                        ` : ''}
+                        ${withdrawal.account_number ? `
+                        <div class="col-span-2">
+                            <label class="block text-gray-600">Account Number</label>
+                            <p class="font-medium">${withdrawal.account_number}</p>
+                        </div>
+                        ` : ''}
+                    </div>
+                </div>
+                ` : ''}
+
+                <!-- Crypto Details -->
+                ${withdrawal.crypto_address ? `
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h4 class="font-medium mb-2">Cryptocurrency Details</h4>
+                    <div class="text-sm">
+                        <label class="block text-gray-600">Wallet Address</label>
+                        <p class="font-mono text-xs break-all bg-white p-2 rounded border">${withdrawal.crypto_address}</p>
+                    </div>
+                </div>
+                ` : ''}
+
+                <!-- Admin Notes -->
+                ${withdrawal.admin_note ? `
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <h4 class="font-medium mb-2 text-blue-800">Admin Notes</h4>
+                    <p class="text-sm text-blue-700">${withdrawal.admin_note}</p>
+                </div>
+                ` : ''}
+
+                <!-- Rejection Reason -->
+                ${withdrawal.rejection_reason ? `
+                <div class="bg-red-50 p-4 rounded-lg">
+                    <h4 class="font-medium mb-2 text-red-800">Rejection Reason</h4>
+                    <p class="text-sm text-red-700">${withdrawal.rejection_reason}</p>
+                </div>
+                ` : ''}
+
+                <!-- Action Buttons -->
+                <div class="flex justify-end space-x-3 pt-4 border-t">
+                    <button onclick="closeWithdrawalModal()" class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">
+                        Close
+                    </button>
+                    ${withdrawal.status === 'pending' ? `
+                        <button onclick="closeWithdrawalModal(); approveWithdrawal('${withdrawal.id}')" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                            Approve
+                        </button>
+                        <button onclick="closeWithdrawalModal(); rejectWithdrawal('${withdrawal.id}')" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
+                            Reject
+                        </button>
+                    ` : withdrawal.status === 'processing' ? `
+                        <button onclick="closeWithdrawalModal(); completeWithdrawal('${withdrawal.id}')" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
+                            Mark as Completed
+                        </button>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+        
+        modal.classList.remove('hidden');
+
+    } catch (error) {
+        console.error('Error viewing withdrawal:', error);
+        showNotification('Error loading withdrawal details', 'error');
+    }
+}
+
+// Approve withdrawal
+async function approveWithdrawal(withdrawalId) {
+    if (!confirm('Are you sure you want to approve this withdrawal? This will change status to Processing.')) return;
+
+    try {
+        const { error } = await supabaseClient
+            .from('transactions')
+            .update({ 
+                status: 'processing',
+                updated_at: new Date().toISOString()
+            })
+            .eq('id', withdrawalId);
+            
+        if (error) throw error;
+
+        showNotification('Withdrawal approved and moved to processing!', 'success');
+        await loadWithdrawalRequests();
+
+    } catch (error) {
+        console.error('Error approving withdrawal:', error);
+        showNotification('Error approving withdrawal', 'error');
+    }
+}
+
+// Reject withdrawal
+async function rejectWithdrawal(withdrawalId) {
+    const reason = prompt('Enter rejection reason:');
+    if (!reason) return;
+
+    try {
+        // Get withdrawal details to refund the amount
+        const { data: withdrawal, error: getError } = await supabaseClient
+            .from('transactions')
+            .select('user_id, amount')
+            .eq('id', withdrawalId)
+            .single();
+            
+        if (getError) throw getError;
+
+        // Update transaction status
+        const { error: updateError } = await supabaseClient
+            .from('transactions')
+            .update({ 
+                status: 'rejected',
+                rejection_reason: reason,
+                updated_at: new Date().toISOString()
+            })
+            .eq('id', withdrawalId);
+            
+        if (updateError) throw updateError;
+
+        // Refund the amount back to user balance
+        const { data: userBalance, error: balanceError } = await supabaseClient
+            .from('user_balances')
+            .select('balance')
+            .eq('user_id', withdrawal.user_id)
+            .single();
+            
+        if (balanceError && balanceError.code !== 'PGRST116') {
+            throw balanceError;
+        }
+
+        const currentBalance = userBalance?.balance || 0;
+        const newBalance = currentBalance + withdrawal.amount;
+        
+        const { error: refundError } = await supabaseClient
+            .from('user_balances')
+            .upsert({ 
+                user_id: withdrawal.user_id,
+                balance: newBalance,
+                updated_at: new Date().toISOString()
+            });
+            
+        if (refundError) throw refundError;
+
+        showNotification('Withdrawal rejected and amount refunded to user!', 'success');
+        await loadWithdrawalRequests();
+
+    } catch (error) {
+        console.error('Error rejecting withdrawal:', error);
+        showNotification('Error rejecting withdrawal', 'error');
+    }
+}
+
+// Complete withdrawal
+async function completeWithdrawal(withdrawalId) {
+    const note = prompt('Enter completion note (optional):');
+    
+    if (!confirm('Are you sure you want to mark this withdrawal as completed?')) return;
+
+    try {
+        const updateData = { 
+            status: 'completed',
+            updated_at: new Date().toISOString()
+        };
+        
+        if (note) {
+            updateData.admin_note = note;
+        }
+
+        const { error } = await supabaseClient
+            .from('transactions')
+            .update(updateData)
+            .eq('id', withdrawalId);
+            
+        if (error) throw error;
+
+        showNotification('Withdrawal marked as completed!', 'success');
+        await loadWithdrawalRequests();
+
+    } catch (error) {
+        console.error('Error completing withdrawal:', error);
+        showNotification('Error completing withdrawal', 'error');
+    }
+}
+
+// Close withdrawal modal
+function closeWithdrawalModal() {
+    document.getElementById('withdrawal-modal').classList.add('hidden');
+}
+
+// Update the switchTab function to include withdrawals
+// Add this case to your existing switchTab function:
+// case 'withdrawals':
+//     loadWithdrawalRequests();
+//     break;
+
+// Update the refreshData function to include withdrawals
+// Add this case to your existing refreshData function:
+// else if (currentTab === 'withdrawals') {
+//     await loadWithdrawalRequests();
+// }
+
+// Add to modal click outside handler
+document.addEventListener('click', function(event) {
+    const withdrawalModal = document.getElementById('withdrawal-modal');
+    if (event.target === withdrawalModal) {
+        closeWithdrawalModal();
+    }
+});
+
 
 // Utility functions
 function showNotification(message, type = 'info') {
