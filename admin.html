@@ -16,31 +16,47 @@
         .fade-in { animation: fadeIn 0.3s ease-in; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
         .tab-active { border-bottom: 2px solid #3b82f6; color: #3b82f6; }
+        
+        /* Responsive additions */
+        @media (max-width: 768px) {
+            .mobile-stack { flex-direction: column; }
+            .mobile-full { width: 100%; margin-left: 0; margin-right: 0; }
+            .mobile-text-sm { font-size: 0.875rem; }
+            .mobile-p-2 { padding: 0.5rem; }
+            .mobile-hidden { display: none; }
+            .mobile-block { display: block; }
+        }
+        
+        /* Table responsive container */
+        .table-container {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
     </style>
 </head>
 <body class="bg-gray-50">
     <!-- Admin Dashboard Container -->
     <div class="min-h-screen">
         <!-- Header -->
-        <header class="bg-gray-900 text-white shadow-sm px-6 py-4 flex justify-between items-center">
-            <div>
-                <h1 class="text-xl font-bold">DigiBit Admin Dashboard</h1>
-                <p class="text-gray-400 text-sm">Complete Admin Management System</p>
+        <header class="bg-gray-900 text-white shadow-sm px-4 py-3 sm:px-6 sm:py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center">
+            <div class="mb-2 sm:mb-0">
+                <h1 class="text-lg sm:text-xl font-bold">DigiBit Admin Dashboard</h1>
+                <p class="text-gray-400 text-xs sm:text-sm">Complete Admin Management System</p>
             </div>
-            <div class="flex items-center space-x-4">
-                <button onclick="refreshData()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                    <i class="fas fa-sync-alt mr-2"></i>
+            <div class="flex items-center space-x-2 sm:space-x-4 w-full sm:w-auto justify-between sm:justify-normal">
+                <button onclick="refreshData()" class="px-3 py-1 sm:px-4 sm:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm">
+                    <i class="fas fa-sync-alt mr-1 sm:mr-2"></i>
                     Refresh
                 </button>
-                <button onclick="logout()" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
-                    <i class="fas fa-sign-out-alt mr-2"></i>
+                <button onclick="logout()" class="px-3 py-1 sm:px-4 sm:py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm">
+                    <i class="fas fa-sign-out-alt mr-1 sm:mr-2"></i>
                     Logout
                 </button>
             </div>
         </header>
 
-        <!-- Navigation Tabs -->
-        <div class="bg-white border-b">
+        <!-- Navigation Tabs - Desktop -->
+        <div class="bg-white border-b hidden sm:block">
             <div class="px-6">
                 <nav class="flex space-x-8">
                     <button onclick="switchTab('deposits')" id="deposits-tab" class="py-4 px-1 font-medium text-sm tab-active">
@@ -59,25 +75,34 @@
             </div>
         </div>
 
+        <!-- Mobile Navigation Dropdown -->
+        <div class="sm:hidden bg-white border-b p-2">
+            <select id="mobile-tab-selector" onchange="switchTab(this.value)" class="w-full p-2 border rounded-lg">
+                <option value="deposits">Pending Deposits</option>
+                <option value="users">Registered Users</option>
+                <option value="withdrawals">Withdrawal Requests</option>
+            </select>
+        </div>
+
         <!-- Main Content -->
-        <div class="p-6">
+        <div class="p-2 sm:p-4 md:p-6">
             <!-- Deposits Tab -->
             <div id="deposits-content" class="tab-content">
                 <div class="bg-white rounded-xl shadow-sm border">
-                    <div class="p-6 border-b">
+                    <div class="p-4 sm:p-6 border-b">
                         <h3 class="text-lg font-semibold">Pending Deposits</h3>
-                        <p class="text-gray-600">Review and approve customer deposits</p>
+                        <p class="text-gray-600 text-sm sm:text-base">Review and approve customer deposits</p>
                     </div>
-                    <div class="overflow-x-auto">
+                    <div class="table-container">
                         <table class="w-full">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Method</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Proof</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                                    <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
+                                    <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
+                                    <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Method</th>
+                                    <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase mobile-hidden">Date</th>
+                                    <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Proof</th>
+                                    <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="deposits-table" class="divide-y divide-gray-200">
@@ -91,27 +116,27 @@
             <!-- Users Tab -->
             <div id="users-content" class="tab-content hidden">
                 <div class="bg-white rounded-xl shadow-sm border">
-                    <div class="p-6 border-b flex justify-between items-center">
+                    <div class="p-4 sm:p-6 border-b flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-3 sm:space-y-0">
                         <div>
                             <h3 class="text-lg font-semibold">Registered Users</h3>
-                            <p class="text-gray-600">Manage user accounts and balances</p>
+                            <p class="text-gray-600 text-sm sm:text-base">Manage user accounts and balances</p>
                         </div>
-                        <div class="flex space-x-3">
-                            <input type="text" id="user-search" placeholder="Search users..." class="px-4 py-2 border rounded-lg">
-                            <button onclick="searchUsers()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        <div class="flex space-x-2 w-full sm:w-auto">
+                            <input type="text" id="user-search" placeholder="Search users..." class="px-3 py-1 sm:px-4 sm:py-2 border rounded-lg text-sm w-full">
+                            <button onclick="searchUsers()" class="px-3 py-1 sm:px-4 sm:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm">
                                 <i class="fas fa-search"></i>
                             </button>
                         </div>
                     </div>
-                    <div class="overflow-x-auto">
+                    <div class="table-container">
                         <table class="w-full">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">User Info</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Current Balance</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Registration Date</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                                    <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">User Info</th>
+                                    <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Balance</th>
+                                    <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase mobile-hidden">Registered</th>
+                                    <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                    <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="users-table" class="divide-y divide-gray-200">
@@ -121,113 +146,109 @@
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <!-- Add this content section after the users-content div -->
-<div id="withdrawals-content" class="tab-content hidden">
-    <div class="bg-white rounded-xl shadow-sm border">
-        <div class="p-6 border-b">
-            <h3 class="text-lg font-semibold">Withdrawal Requests</h3>
-            <p class="text-gray-600">Review and process customer withdrawal requests</p>
-        </div>
-        <div class="overflow-x-auto">
-            <table class="w-full">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Method</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Destination</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="withdrawals-table" class="divide-y divide-gray-200">
-                    <!-- Withdrawals will be loaded here -->
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
-
-<!-- Add this modal for withdrawal details -->
-<div id="withdrawal-modal" class="fixed inset-0 bg-black bg-opacity-50 modal-backdrop flex items-center justify-center z-50 hidden">
-    <div class="bg-white rounded-xl shadow-xl w-full max-w-2xl mx-4 fade-in">
-        <div class="p-6 border-b">
-            <div class="flex justify-between items-center">
-                <h3 class="text-xl font-bold">Withdrawal Details</h3>
-                <button onclick="closeWithdrawalModal()" class="text-gray-500 hover:text-gray-700">
-                    <i class="fas fa-times text-xl"></i>
-                </button>
+            <!-- Withdrawals Tab -->
+            <div id="withdrawals-content" class="tab-content hidden">
+                <div class="bg-white rounded-xl shadow-sm border">
+                    <div class="p-4 sm:p-6 border-b">
+                        <h3 class="text-lg font-semibold">Withdrawal Requests</h3>
+                        <p class="text-gray-600 text-sm sm:text-base">Review and process customer withdrawal requests</p>
+                    </div>
+                    <div class="table-container">
+                        <table class="w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
+                                    <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
+                                    <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Method</th>
+                                    <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase mobile-hidden">Date</th>
+                                    <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Destination</th>
+                                    <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                    <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="withdrawals-table" class="divide-y divide-gray-200">
+                                <!-- Withdrawals will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
-        <div id="withdrawal-modal-content" class="p-6">
-            <!-- Withdrawal content will be loaded here -->
-        </div>
     </div>
-</div>
 
-
-    <!-- Transaction Details Modal -->
-    <div id="transaction-modal" class="fixed inset-0 bg-black bg-opacity-50 modal-backdrop flex items-center justify-center z-50 hidden">
-        <div class="bg-white rounded-xl shadow-xl w-full max-w-2xl mx-4 fade-in">
-            <div class="p-6 border-b">
+    <!-- Modals (same as before but with responsive classes) -->
+    <div id="withdrawal-modal" class="fixed inset-0 bg-black bg-opacity-50 modal-backdrop flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl shadow-xl w-full mx-2 sm:max-w-2xl sm:mx-4 fade-in">
+            <div class="p-4 sm:p-6 border-b">
                 <div class="flex justify-between items-center">
-                    <h3 class="text-xl font-bold">Deposit Details</h3>
-                    <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700">
-                        <i class="fas fa-times text-xl"></i>
+                    <h3 class="text-lg sm:text-xl font-bold">Withdrawal Details</h3>
+                    <button onclick="closeWithdrawalModal()" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times text-lg sm:text-xl"></i>
                     </button>
                 </div>
             </div>
-            <div id="modal-content" class="p-6">
+            <div id="withdrawal-modal-content" class="p-4 sm:p-6 overflow-y-auto max-h-[80vh]">
+                <!-- Withdrawal content will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <div id="transaction-modal" class="fixed inset-0 bg-black bg-opacity-50 modal-backdrop flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl shadow-xl w-full mx-2 sm:max-w-2xl sm:mx-4 fade-in">
+            <div class="p-4 sm:p-6 border-b">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg sm:text-xl font-bold">Deposit Details</h3>
+                    <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times text-lg sm:text-xl"></i>
+                    </button>
+                </div>
+            </div>
+            <div id="modal-content" class="p-4 sm:p-6 overflow-y-auto max-h-[80vh]">
                 <!-- Modal content will be loaded here -->
             </div>
         </div>
     </div>
 
-    <!-- Image Preview Modal -->
     <div id="image-modal" class="fixed inset-0 bg-black bg-opacity-50 modal-backdrop flex items-center justify-center z-50 hidden">
-        <div class="bg-white rounded-xl shadow-xl w-full max-w-4xl mx-4 fade-in">
-            <div class="p-6 border-b">
+        <div class="bg-white rounded-xl shadow-xl w-full mx-2 sm:max-w-4xl sm:mx-4 fade-in">
+            <div class="p-4 sm:p-6 border-b">
                 <div class="flex justify-between items-center">
-                    <h3 class="text-xl font-bold">Payment Proof</h3>
+                    <h3 class="text-lg sm:text-xl font-bold">Payment Proof</h3>
                     <button onclick="closeImageModal()" class="text-gray-500 hover:text-gray-700">
-                        <i class="fas fa-times text-xl"></i>
+                        <i class="fas fa-times text-lg sm:text-xl"></i>
                     </button>
                 </div>
             </div>
-            <div class="p-6 text-center">
-                <img id="proof-image" src="" alt="Payment Proof" class="max-w-full max-h-96 mx-auto rounded-lg">
+            <div class="p-4 sm:p-6 text-center">
+                <img id="proof-image" src="" alt="Payment Proof" class="max-w-full max-h-[70vh] mx-auto rounded-lg">
             </div>
         </div>
     </div>
 
-    <!-- Credit Balance Modal -->
     <div id="credit-modal" class="fixed inset-0 bg-black bg-opacity-50 modal-backdrop flex items-center justify-center z-50 hidden">
-        <div class="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 fade-in">
-            <div class="p-6 border-b">
+        <div class="bg-white rounded-xl shadow-xl w-full mx-2 sm:max-w-md sm:mx-4 fade-in">
+            <div class="p-4 sm:p-6 border-b">
                 <div class="flex justify-between items-center">
-                    <h3 class="text-xl font-bold">Credit User Balance</h3>
+                    <h3 class="text-lg sm:text-xl font-bold">Credit User Balance</h3>
                     <button onclick="closeCreditModal()" class="text-gray-500 hover:text-gray-700">
-                        <i class="fas fa-times text-xl"></i>
+                        <i class="fas fa-times text-lg sm:text-xl"></i>
                     </button>
                 </div>
             </div>
-            <div class="p-6">
+            <div class="p-4 sm:p-6">
                 <div id="credit-user-info" class="mb-4 p-3 bg-gray-50 rounded">
                     <!-- User info will be loaded here -->
                 </div>
                 <div class="mb-4">
                     <label class="block text-sm font-medium mb-2">Amount to Credit ($)</label>
-                    <input type="number" id="credit-amount" step="0.01" min="0" class="w-full px-4 py-2 border rounded-lg" placeholder="Enter amount">
+                    <input type="number" id="credit-amount" step="0.01" min="0" class="w-full px-3 py-2 border rounded-lg" placeholder="Enter amount">
                 </div>
                 <div class="mb-6">
                     <label class="block text-sm font-medium mb-2">Reason/Note</label>
-                    <textarea id="credit-reason" rows="3" class="w-full px-4 py-2 border rounded-lg" placeholder="Enter reason for credit..."></textarea>
+                    <textarea id="credit-reason" rows="3" class="w-full px-3 py-2 border rounded-lg" placeholder="Enter reason for credit..."></textarea>
                 </div>
-                <div class="flex justify-between">
+                <div class="flex flex-col sm:flex-row justify-between space-y-2 sm:space-y-0 sm:space-x-3">
                     <button onclick="closeCreditModal()" class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">
                         Cancel
                     </button>
@@ -239,36 +260,34 @@
         </div>
     </div>
 
-    <!-- User Details Modal -->
     <div id="user-details-modal" class="fixed inset-0 bg-black bg-opacity-50 modal-backdrop flex items-center justify-center z-50 hidden">
-        <div class="bg-white rounded-xl shadow-xl w-full max-w-3xl mx-4 fade-in">
-            <div class="p-6 border-b">
+        <div class="bg-white rounded-xl shadow-xl w-full mx-2 sm:max-w-3xl sm:mx-4 fade-in">
+            <div class="p-4 sm:p-6 border-b">
                 <div class="flex justify-between items-center">
-                    <h3 class="text-xl font-bold">User Details</h3>
+                    <h3 class="text-lg sm:text-xl font-bold">User Details</h3>
                     <button onclick="closeUserDetailsModal()" class="text-gray-500 hover:text-gray-700">
-                        <i class="fas fa-times text-xl"></i>
+                        <i class="fas fa-times text-lg sm:text-xl"></i>
                     </button>
                 </div>
             </div>
-            <div id="user-details-content" class="p-6">
+            <div id="user-details-content" class="p-4 sm:p-6 overflow-y-auto max-h-[80vh]">
                 <!-- User details will be loaded here -->
             </div>
         </div>
     </div>
 
-    <!-- Login Modal -->
     <div id="login-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
-            <h2 class="text-2xl font-bold mb-4">Admin Login</h2>
+        <div class="bg-white rounded-xl shadow-xl w-full mx-2 sm:max-w-md p-4 sm:p-6">
+            <h2 class="text-xl sm:text-2xl font-bold mb-4">Admin Login</h2>
             <div class="mb-4">
                 <label class="block text-sm font-medium mb-1">Username</label>
-                <input id="login-username" type="text" class="w-full px-4 py-2 border rounded-lg" value="Admin">
+                <input id="login-username" type="text" class="w-full px-3 py-2 border rounded-lg" value="Admin">
             </div>
             <div class="mb-6">
                 <label class="block text-sm font-medium mb-1">Password</label>
-                <input id="login-password" type="password" class="w-full px-4 py-2 border rounded-lg" value="Admin1">
+                <input id="login-password" type="password" class="w-full px-3 py-2 border rounded-lg" value="Admin1">
             </div>
-            <div class="flex justify-between">
+            <div class="flex flex-col sm:flex-row justify-between space-y-2 sm:space-y-0 sm:space-x-3">
                 <button onclick="window.location.href='/'" class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">
                     Cancel
                 </button>
