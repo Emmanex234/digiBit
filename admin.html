@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DigiBit Deposit Admin</title>
+    <title>DigiBit Admin Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.min.js"></script>
@@ -14,6 +14,7 @@
         .modal-backdrop { backdrop-filter: blur(4px); }
         .fade-in { animation: fadeIn 0.3s ease-in; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .tab-active { border-bottom: 2px solid #3b82f6; color: #3b82f6; }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -22,8 +23,8 @@
         <!-- Header -->
         <header class="bg-gray-900 text-white shadow-sm px-6 py-4 flex justify-between items-center">
             <div>
-                <h1 class="text-xl font-bold">DigiBit Deposit Admin</h1>
-                <p class="text-gray-400 text-sm">Pending Deposit Management</p>
+                <h1 class="text-xl font-bold">DigiBit Admin Dashboard</h1>
+                <p class="text-gray-400 text-sm">Complete Admin Management System</p>
             </div>
             <div class="flex items-center space-x-4">
                 <button onclick="refreshData()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
@@ -37,29 +38,82 @@
             </div>
         </header>
 
+        <!-- Navigation Tabs -->
+        <div class="bg-white border-b">
+            <div class="px-6">
+                <nav class="flex space-x-8">
+                    <button onclick="switchTab('deposits')" id="deposits-tab" class="py-4 px-1 font-medium text-sm tab-active">
+                        <i class="fas fa-money-bill-wave mr-2"></i>
+                        Pending Deposits
+                    </button>
+                    <button onclick="switchTab('users')" id="users-tab" class="py-4 px-1 font-medium text-sm text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-users mr-2"></i>
+                        Registered Users
+                    </button>
+                </nav>
+            </div>
+        </div>
+
         <!-- Main Content -->
         <div class="p-6">
-            <div class="bg-white rounded-xl shadow-sm border">
-                <div class="p-6 border-b">
-                    <h3 class="text-lg font-semibold">Pending Deposits</h3>
-                    <p class="text-gray-600">Review and approve customer deposits</p>
+            <!-- Deposits Tab -->
+            <div id="deposits-content" class="tab-content">
+                <div class="bg-white rounded-xl shadow-sm border">
+                    <div class="p-6 border-b">
+                        <h3 class="text-lg font-semibold">Pending Deposits</h3>
+                        <p class="text-gray-600">Review and approve customer deposits</p>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Method</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Proof</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="deposits-table" class="divide-y divide-gray-200">
+                                <!-- Deposits will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Method</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Proof</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="deposits-table" class="divide-y divide-gray-200">
-                            <!-- Deposits will be loaded here -->
-                        </tbody>
-                    </table>
+            </div>
+
+            <!-- Users Tab -->
+            <div id="users-content" class="tab-content hidden">
+                <div class="bg-white rounded-xl shadow-sm border">
+                    <div class="p-6 border-b flex justify-between items-center">
+                        <div>
+                            <h3 class="text-lg font-semibold">Registered Users</h3>
+                            <p class="text-gray-600">Manage user accounts and balances</p>
+                        </div>
+                        <div class="flex space-x-3">
+                            <input type="text" id="user-search" placeholder="Search users..." class="px-4 py-2 border rounded-lg">
+                            <button onclick="searchUsers()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">User Info</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Current Balance</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Registration Date</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="users-table" class="divide-y divide-gray-200">
+                                <!-- Users will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -99,7 +153,59 @@
         </div>
     </div>
 
-    <!-- Login Modal (will be shown by default) -->
+    <!-- Credit Balance Modal -->
+    <div id="credit-modal" class="fixed inset-0 bg-black bg-opacity-50 modal-backdrop flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 fade-in">
+            <div class="p-6 border-b">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-xl font-bold">Credit User Balance</h3>
+                    <button onclick="closeCreditModal()" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="p-6">
+                <div id="credit-user-info" class="mb-4 p-3 bg-gray-50 rounded">
+                    <!-- User info will be loaded here -->
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium mb-2">Amount to Credit ($)</label>
+                    <input type="number" id="credit-amount" step="0.01" min="0" class="w-full px-4 py-2 border rounded-lg" placeholder="Enter amount">
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-medium mb-2">Reason/Note</label>
+                    <textarea id="credit-reason" rows="3" class="w-full px-4 py-2 border rounded-lg" placeholder="Enter reason for credit..."></textarea>
+                </div>
+                <div class="flex justify-between">
+                    <button onclick="closeCreditModal()" class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">
+                        Cancel
+                    </button>
+                    <button onclick="executeCreditBalance()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                        Credit Balance
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Details Modal -->
+    <div id="user-details-modal" class="fixed inset-0 bg-black bg-opacity-50 modal-backdrop flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-3xl mx-4 fade-in">
+            <div class="p-6 border-b">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-xl font-bold">User Details</h3>
+                    <button onclick="closeUserDetailsModal()" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+            </div>
+            <div id="user-details-content" class="p-6">
+                <!-- User details will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
     <div id="login-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
             <h2 class="text-2xl font-bold mb-4">Admin Login</h2>
@@ -130,6 +236,8 @@ const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
 // Global variables
 let isLoggedIn = false;
+let currentTab = 'deposits';
+let selectedUserId = null;
 
 // Initialize admin dashboard
 async function initializeAdmin() {
@@ -141,8 +249,40 @@ async function initializeAdmin() {
     // Hide login modal and show dashboard
     document.getElementById('login-modal').classList.add('hidden');
     
-    // Load data
-    await loadPendingDeposits();
+    // Load data based on current tab
+    if (currentTab === 'deposits') {
+        await loadPendingDeposits();
+    } else if (currentTab === 'users') {
+        await loadUsers();
+    }
+}
+
+// Tab switching functionality
+function switchTab(tab) {
+    // Update tab appearance
+    document.querySelectorAll('[id$="-tab"]').forEach(t => {
+        t.classList.remove('tab-active');
+        t.classList.add('text-gray-500', 'hover:text-gray-700');
+    });
+    
+    document.getElementById(tab + '-tab').classList.add('tab-active');
+    document.getElementById(tab + '-tab').classList.remove('text-gray-500', 'hover:text-gray-700');
+    
+    // Show/hide content
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.add('hidden');
+    });
+    
+    document.getElementById(tab + '-content').classList.remove('hidden');
+    
+    currentTab = tab;
+    
+    // Load appropriate data
+    if (tab === 'deposits') {
+        loadPendingDeposits();
+    } else if (tab === 'users') {
+        loadUsers();
+    }
 }
 
 // Attempt login with hardcoded credentials
@@ -162,7 +302,11 @@ function attemptLogin() {
 // Refresh all data
 async function refreshData() {
     try {
-        await loadPendingDeposits();
+        if (currentTab === 'deposits') {
+            await loadPendingDeposits();
+        } else if (currentTab === 'users') {
+            await loadUsers();
+        }
     } catch (error) {
         console.error('Error refreshing data:', error);
         showNotification('Error refreshing data', 'error');
@@ -170,7 +314,6 @@ async function refreshData() {
 }
 
 // Load pending deposits
-
 async function loadPendingDeposits() {
     try {
         const { data: deposits, error } = await supabaseClient
@@ -203,7 +346,7 @@ async function loadPendingDeposits() {
                         <p class="text-sm text-gray-500">${deposit.profiles?.phone || 'No phone'}</p>
                     </div>
                 </td>
-                <td class="px-6 py-4 font-semibold text-green-600">${deposit.amount.toFixed(2)}</td>
+                <td class="px-6 py-4 font-semibold text-green-600">$${deposit.amount.toFixed(2)}</td>
                 <td class="px-6 py-4">
                     <span class="text-sm">${deposit.payment_method?.replace('_', ' ') || ''}</span>
                     ${deposit.crypto_type ? `<br><span class="text-xs text-gray-500">${deposit.crypto_type}</span>` : ''}
@@ -238,9 +381,352 @@ async function loadPendingDeposits() {
     }
 }
 
+// Load users
+async function loadUsers() {
+    try {
+        const { data: users, error } = await supabaseClient
+            .from('profiles')
+            .select(`
+                *,
+                full_name,
+                created_at
+            `)
+            .order('created_at', { ascending: false });
 
+        if (error) {
+            console.error('Supabase error:', error);
+            showNotification('Error loading users: ' + error.message, 'error');
+            return;
+        }
 
-// Approve deposit
+        const tableBody = document.getElementById('users-table');
+        tableBody.innerHTML = '';
+
+        if (!users || users.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-gray-500">No registered users</td></tr>';
+            return;
+        }
+
+        users.forEach(user => {
+            const balance = user.user_balances?.[0]?.balance || 0;
+            const row = document.createElement('tr');
+            row.className = 'hover:bg-gray-50';
+            row.innerHTML = `
+                <td class="px-6 py-4">
+                    <div>
+                        <p class="font-medium">${user.full_name || 'N/A'}</p>
+                        <p class="text-sm text-gray-500">${user.email || 'No email'}</p>
+                        <p class="text-xs text-gray-400">${user.phone || 'No phone'}</p>
+                    </div>
+                </td>
+                <td class="px-6 py-4">
+                    <span class="font-semibold ${balance > 0 ? 'text-green-600' : 'text-gray-600'}">
+                        $${balance.toFixed(2)}
+                    </span>
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-500">
+                    ${user.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A'}
+                </td>
+                <td class="px-6 py-4">
+                    <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">
+                        Active
+                    </span>
+                </td>
+                <td class="px-6 py-4">
+                    <div class="flex space-x-2">
+                        <button onclick="viewUserDetails('${user.id}')" class="px-3 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600">
+                            View
+                        </button>
+                        <button onclick="openCreditModal('${user.id}', '${user.full_name || 'User'}', ${balance})" class="px-3 py-1 bg-green-500 text-white text-xs rounded hover:bg-green-600">
+                            Credit
+                        </button>
+                    </div>
+                </td>
+            `;
+            tableBody.appendChild(row);
+        });
+
+    } catch (error) {
+        console.error('Error loading users:', error);
+        showNotification('Error loading users', 'error');
+    }
+}
+// Search users
+async function searchUsers() {
+    const searchTerm = document.getElementById('user-search').value.toLowerCase();
+    
+    if (!searchTerm) {
+        await loadUsers();
+        return;
+    }
+
+    try {
+        const { data: users, error } = await supabaseClient
+            .from('profiles')
+            .select(`
+                *,
+                user_balances(balance)
+            `)
+            .or(`full_name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%,phone.ilike.%${searchTerm}%`)
+            .order('created_at', { ascending: false });
+        
+        if (error) throw error;
+
+        const tableBody = document.getElementById('users-table');
+        tableBody.innerHTML = '';
+
+        if (!users || users.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-gray-500">No users found</td></tr>';
+            return;
+        }
+
+        users.forEach(user => {
+            const balance = user.user_balances?.[0]?.balance || 0;
+            const row = document.createElement('tr');
+            row.className = 'hover:bg-gray-50';
+            row.innerHTML = `
+                <td class="px-6 py-4">
+                    <div>
+                        <p class="font-medium">${user.full_name || 'N/A'}</p>
+                        <p class="text-sm text-gray-500">${user.email || 'No email'}</p>
+                        <p class="text-xs text-gray-400">${user.phone || 'No phone'}</p>
+                    </div>
+                </td>
+                <td class="px-6 py-4">
+                    <span class="font-semibold ${balance > 0 ? 'text-green-600' : 'text-gray-600'}">
+                        $${balance.toFixed(2)}
+                    </span>
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-500">
+                    ${user.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A'}
+                </td>
+                <td class="px-6 py-4">
+                    <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">
+                        Active
+                    </span>
+                </td>
+                <td class="px-6 py-4">
+                    <div class="flex space-x-2">
+                        <button onclick="viewUserDetails('${user.id}')" class="px-3 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600">
+                            View
+                        </button>
+                        <button onclick="openCreditModal('${user.id}', '${user.full_name || 'User'}', ${balance})" class="px-3 py-1 bg-green-500 text-white text-xs rounded hover:bg-green-600">
+                            Credit
+                        </button>
+                    </div>
+                </td>
+            `;
+            tableBody.appendChild(row);
+        });
+
+    } catch (error) {
+        console.error('Error searching users:', error);
+        showNotification('Error searching users', 'error');
+    }
+}
+
+// View user details
+async function viewUserDetails(userId) {
+    try {
+        const { data: user, error: userError } = await supabaseClient
+            .from('profiles')
+            .select(`
+                *,
+                user_balances(balance, updated_at)
+            `)
+            .eq('id', userId)
+            .single();
+            
+        if (userError) throw userError;
+
+        // Get user's transaction history
+        const { data: transactions, error: transError } = await supabaseClient
+            .from('transactions')
+            .select('*')
+            .eq('user_id', userId)
+            .order('created_at', { ascending: false })
+            .limit(10);
+
+        if (transError) throw transError;
+
+        const modal = document.getElementById('user-details-modal');
+        const content = document.getElementById('user-details-content');
+        
+        const balance = user.user_balances?.[0]?.balance || 0;
+        
+        content.innerHTML = `
+            <div class="space-y-6">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Full Name</label>
+                        <p class="text-sm">${user.full_name || 'N/A'}</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Email</label>
+                        <p class="text-sm">${user.email || 'N/A'}</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Phone</label>
+                        <p class="text-sm">${user.phone || 'N/A'}</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Current Balance</label>
+                        <p class="text-lg font-semibold ${balance > 0 ? 'text-green-600' : 'text-gray-600'}">
+                            $${balance.toFixed(2)}
+                        </p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Registration Date</label>
+                        <p class="text-sm">${user.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A'}</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Last Balance Update</label>
+                        <p class="text-sm">${user.user_balances?.[0]?.updated_at ? new Date(user.user_balances[0].updated_at).toLocaleDateString() : 'Never'}</p>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-3">Recent Transactions</h4>
+                    <div class="bg-gray-50 rounded-lg p-4 max-h-64 overflow-y-auto">
+                        ${transactions && transactions.length > 0 ? 
+                            transactions.map(tx => `
+                                <div class="flex justify-between items-center py-2 border-b border-gray-200 last:border-b-0">
+                                    <div>
+                                        <p class="text-sm font-medium">${tx.type.charAt(0).toUpperCase() + tx.type.slice(1)}</p>
+                                        <p class="text-xs text-gray-500">${new Date(tx.created_at).toLocaleDateString()}</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-sm font-semibold ${tx.type === 'deposit' ? 'text-green-600' : 'text-red-600'}">
+                                            ${tx.type === 'deposit' ? '+' : '-'}$${tx.amount.toFixed(2)}
+                                        </p>
+                                        <p class="text-xs text-gray-500 capitalize">${tx.status}</p>
+                                    </div>
+                                </div>
+                            `).join('') :
+                            '<p class="text-gray-500 text-sm">No transactions found</p>'
+                        }
+                    </div>
+                </div>
+                
+                <div class="flex justify-end space-x-3">
+                    <button onclick="closeUserDetailsModal()" class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">
+                        Close
+                    </button>
+                    <button onclick="closeUserDetailsModal(); openCreditModal('${user.id}', '${user.full_name || 'User'}', ${balance})" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                        Credit Balance
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        modal.classList.remove('hidden');
+
+    } catch (error) {
+        console.error('Error viewing user details:', error);
+        showNotification('Error loading user details', 'error');
+    }
+}
+
+// Open credit balance modal
+function openCreditModal(userId, userName, currentBalance) {
+    selectedUserId = userId;
+    
+    const modal = document.getElementById('credit-modal');
+    const userInfo = document.getElementById('credit-user-info');
+    
+    userInfo.innerHTML = `
+        <div class="flex justify-between items-center">
+            <div>
+                <p class="font-medium">${userName}</p>
+                <p class="text-sm text-gray-500">Current Balance: ${currentBalance.toFixed(2)}</p>
+            </div>
+        </div>
+    `;
+    
+    // Clear form
+    document.getElementById('credit-amount').value = '';
+    document.getElementById('credit-reason').value = '';
+    
+    modal.classList.remove('hidden');
+}
+
+// Execute balance credit
+async function executeCreditBalance() {
+    const amount = parseFloat(document.getElementById('credit-amount').value);
+    const reason = document.getElementById('credit-reason').value.trim();
+    
+    if (!amount || amount <= 0) {
+        showNotification('Please enter a valid amount', 'error');
+        return;
+    }
+    
+    if (!reason) {
+        showNotification('Please enter a reason for the credit', 'error');
+        return;
+    }
+    
+    if (!selectedUserId) {
+        showNotification('No user selected', 'error');
+        return;
+    }
+
+    try {
+        // Get current balance
+        const { data: userBalance, error: balanceError } = await supabaseClient
+            .from('user_balances')
+            .select('balance')
+            .eq('user_id', selectedUserId)
+            .single();
+            
+        if (balanceError && balanceError.code !== 'PGRST116') {
+            throw balanceError;
+        }
+
+        const currentBalance = userBalance?.balance || 0;
+        const newBalance = currentBalance + amount;
+        
+        // Update user balance
+        const { error: updateBalanceError } = await supabaseClient
+            .from('user_balances')
+            .upsert({ 
+                user_id: selectedUserId,
+                balance: newBalance,
+                updated_at: new Date().toISOString()
+            });
+            
+        if (updateBalanceError) throw updateBalanceError;
+
+        // Create a transaction record for the admin credit
+        const { error: transactionError } = await supabaseClient
+            .from('transactions')
+            .insert({
+                user_id: selectedUserId,
+                type: 'deposit',
+                amount: amount,
+                status: 'completed',
+                payment_method: 'admin_credit',
+                admin_note: reason,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+            });
+            
+        if (transactionError) throw transactionError;
+
+        showNotification(`Successfully credited ${amount.toFixed(2)} to user account!`, 'success');
+        closeCreditModal();
+        
+        // Refresh the users table if we're on the users tab
+        if (currentTab === 'users') {
+            await loadUsers();
+        }
+
+    } catch (error) {
+        console.error('Error crediting balance:', error);
+        showNotification('Error crediting balance', 'error');
+    }
+}
+
+// Approve deposit (existing function)
 async function approveDeposit(transactionId, amount, userId) {
     if (!confirm('Are you sure you want to approve this deposit?')) return;
 
@@ -263,7 +749,7 @@ async function approveDeposit(transactionId, amount, userId) {
             .eq('user_id', userId)
             .single();
             
-        if (balanceError && balanceError.code !== 'PGRST116') { // Ignore "no rows" error
+        if (balanceError && balanceError.code !== 'PGRST116') {
             throw balanceError;
         }
 
@@ -289,7 +775,7 @@ async function approveDeposit(transactionId, amount, userId) {
     }
 }
 
-// Reject transaction
+// Reject transaction (existing function)
 async function rejectTransaction(transactionId) {
     const reason = prompt('Enter rejection reason:');
     if (!reason) return;
@@ -315,14 +801,14 @@ async function rejectTransaction(transactionId) {
     }
 }
 
-// View transaction details
+// View transaction details (existing function)
 async function viewTransaction(transactionId) {
     try {
         const { data: transaction, error } = await supabaseClient
             .from('transactions')
             .select(`
                 *,
-                profiles:user_id (id, email, first_name, last_name)
+                profiles:user_id (id, email, full_name)
             `)
             .eq('id', transactionId)
             .single();
@@ -348,13 +834,13 @@ async function viewTransaction(transactionId) {
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Customer</label>
-                        <p class="text-sm">${transaction.profiles?.first_name || ''} ${transaction.profiles?.last_name || ''}</p>
+                        <p class="text-sm">${transaction.profiles?.full_name || 'Unknown User'}</p>
                         <p class="text-xs text-gray-500">${transaction.profiles?.email || ''}</p>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Amount</label>
                         <p class="text-lg font-semibold text-green-600">
-                            $${transaction.amount.toFixed(2)}
+                            ${transaction.amount.toFixed(2)}
                         </p>
                     </div>
                     <div>
@@ -377,6 +863,12 @@ async function viewTransaction(transactionId) {
                         <p class="text-sm text-red-600">${transaction.rejection_reason}</p>
                     </div>
                     ` : ''}
+                    ${transaction.admin_note ? `
+                    <div class="col-span-2">
+                        <label class="block text-sm font-medium text-gray-700">Admin Note</label>
+                        <p class="text-sm text-blue-600">${transaction.admin_note}</p>
+                    </div>
+                    ` : ''}
                 </div>
                 ${transaction.payment_proof ? `
                 <div class="mt-4">
@@ -395,7 +887,7 @@ async function viewTransaction(transactionId) {
     }
 }
 
-// View payment proof
+// View payment proof (existing function)
 function viewProof(proofUrl) {
     const modal = document.getElementById('image-modal');
     const img = document.getElementById('proof-image');
@@ -412,13 +904,21 @@ function closeImageModal() {
     document.getElementById('image-modal').classList.add('hidden');
 }
 
+function closeCreditModal() {
+    document.getElementById('credit-modal').classList.add('hidden');
+    selectedUserId = null;
+}
+
+function closeUserDetailsModal() {
+    document.getElementById('user-details-modal').classList.add('hidden');
+}
+
 function showLoginModal() {
     document.getElementById('login-modal').classList.remove('hidden');
 }
 
 // Utility functions
 function showNotification(message, type = 'info') {
-    // Create notification element
     const notification = document.createElement('div');
     notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 fade-in ${
         type === 'success' ? 'bg-green-500 text-white' :
@@ -430,7 +930,6 @@ function showNotification(message, type = 'info') {
 
     document.body.appendChild(notification);
 
-    // Remove after 5 seconds
     setTimeout(() => {
         notification.remove();
     }, 5000);
@@ -438,20 +937,42 @@ function showNotification(message, type = 'info') {
 
 function logout() {
     isLoggedIn = false;
+    currentTab = 'deposits';
+    selectedUserId = null;
+    
+    // Reset tab appearance
+    switchTab('deposits');
+    
     showLoginModal();
     showNotification('Logged out successfully', 'success');
 }
 
 // Close modals when clicking outside
 document.addEventListener('click', function(event) {
-    const modals = ['transaction-modal', 'image-modal'];
+    const modals = ['transaction-modal', 'image-modal', 'credit-modal', 'user-details-modal'];
     modals.forEach(modalId => {
         const modal = document.getElementById(modalId);
         if (event.target === modal) {
             if (modalId === 'transaction-modal') closeModal();
             if (modalId === 'image-modal') closeImageModal();
+            if (modalId === 'credit-modal') closeCreditModal();
+            if (modalId === 'user-details-modal') closeUserDetailsModal();
         }
     });
+});
+
+// Allow Enter key to search users
+document.getElementById('user-search').addEventListener('keypress', function(event) {
+    if (event.key === 'Enter') {
+        searchUsers();
+    }
+});
+
+// Allow Enter key to login
+document.addEventListener('keypress', function(event) {
+    if (event.key === 'Enter' && !document.getElementById('login-modal').classList.contains('hidden')) {
+        attemptLogin();
+    }
 });
 
 // Initialize dashboard when page loads
