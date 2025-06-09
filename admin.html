@@ -50,6 +50,10 @@
                         <i class="fas fa-users mr-2"></i>
                         Registered Users
                     </button>
+                    <button onclick="switchTab('withdrawals')" id="withdrawals-tab" class="py-4 px-1 font-medium text-sm text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-money-bill-alt mr-2"></i>
+                        Withdrawal Requests
+                    </button>
                 </nav>
             </div>
         </div>
@@ -118,6 +122,52 @@
             </div>
         </div>
     </div>
+
+    <!-- Add this content section after the users-content div -->
+<div id="withdrawals-content" class="tab-content hidden">
+    <div class="bg-white rounded-xl shadow-sm border">
+        <div class="p-6 border-b">
+            <h3 class="text-lg font-semibold">Withdrawal Requests</h3>
+            <p class="text-gray-600">Review and process customer withdrawal requests</p>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Method</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Destination</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="withdrawals-table" class="divide-y divide-gray-200">
+                    <!-- Withdrawals will be loaded here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Add this modal for withdrawal details -->
+<div id="withdrawal-modal" class="fixed inset-0 bg-black bg-opacity-50 modal-backdrop flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-2xl mx-4 fade-in">
+        <div class="p-6 border-b">
+            <div class="flex justify-between items-center">
+                <h3 class="text-xl font-bold">Withdrawal Details</h3>
+                <button onclick="closeWithdrawalModal()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+        </div>
+        <div id="withdrawal-modal-content" class="p-6">
+            <!-- Withdrawal content will be loaded here -->
+        </div>
+    </div>
+</div>
+
 
     <!-- Transaction Details Modal -->
     <div id="transaction-modal" class="fixed inset-0 bg-black bg-opacity-50 modal-backdrop flex items-center justify-center z-50 hidden">
