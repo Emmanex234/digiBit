@@ -1890,7 +1890,8 @@ function openWithdrawModal() {
       withdrawDetails.innerHTML = `
         <label class="block text-sm font-medium text-gray-700 mb-1">Crypto Address</label>
         <input id="withdraw-crypto-address" type="text" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Enter your wallet address">
-        <input id="memo" type="hidden" value="bitcoin">
+        <label class="block text-sm font-medium text-gray-700 mb-1 mt-3">Memo/Tag (Optional)</label>
+        <input id="withdraw-crypto-memo" type="text" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Enter memo/tag if required by the wallet">
         <label class="block text-sm font-medium text-gray-700 mb-1 mt-3">Select Coin</label>
         <select id="withdraw-crypto-type" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
           <option value="bitcoin">Bitcoin (BTC)</option>
@@ -1898,6 +1899,7 @@ function openWithdrawModal() {
           <option value="usdt">Tether (USDT)</option>
           <option value="bnb">XRP (XRP)</option>
         </select>
+        <p class="text-xs text-gray-500 mt-2">Note: Some networks require a memo/tag for certain coins. Please check with your wallet provider.</p>
       `;
     } else {
       withdrawDetails.innerHTML = `
@@ -1933,13 +1935,14 @@ function openWithdrawModal() {
     let details = {};
     if (withdrawMethod.value === 'crypto') {
       const address = modal.querySelector('#withdraw-crypto-address').value.trim();
+      const memo = modal.querySelector('#withdraw-crypto-memo').value.trim();
       const coin = modal.querySelector('#withdraw-crypto-type').value;
       if (!address) {
         errorEl.textContent = 'Please enter your crypto address';
         errorEl.classList.remove('hidden');
         return;
       }
-      details = { address, coin };
+      details = { address, coin, memo: memo || null };
     } else {
       const account = modal.querySelector('#withdraw-bank-account').value.trim();
       const bank = modal.querySelector('#withdraw-bank-name').value.trim();
@@ -1960,7 +1963,7 @@ function openWithdrawModal() {
           type: 'withdrawal',
           status: 'pending',
           description: withdrawMethod.value === 'crypto'
-            ? `Withdrawal to ${details.coin} address: ${details.address}`
+            ? `Withdrawal to ${details.coin} address: ${details.address}` + (details.memo ? ` (memo: ${details.memo})` : '')
             : `Withdrawal to bank: ${details.bank}, account: ${details.account}`,
           withdrawal_method: withdrawMethod.value,
           withdrawal_details: JSON.stringify(details),
@@ -1981,7 +1984,6 @@ function openWithdrawModal() {
     if (e.target === modal) modal.remove();
   });
 }
-
   </script>
 </body>
 </html>
