@@ -62,7 +62,7 @@
               </svg>
               Investments
             </a>
-            <a href="/admin.html" class="flex items-center px-4 py-3 text-sm font-medium rounded-lg text-blue-200 hover:bg-blue-800 hover:text-white">
+            <a href="#" class="flex items-center px-4 py-3 text-sm font-medium rounded-lg text-blue-200 hover:bg-blue-800 hover:text-white">
               <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
               </svg>
@@ -130,7 +130,7 @@
               </svg>
               Investments
             </a>
-            <a href="/admin.html" class="flex items-center px-4 py-3 text-sm font-medium rounded-lg text-blue-700 hover:bg-blue-100">
+            <a href="#" class="flex items-center px-4 py-3 text-sm font-medium rounded-lg text-blue-700 hover:bg-blue-100">
               <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
               </svg>
@@ -652,7 +652,7 @@ const cryptoOptions = [
   { id: 'bitcoin', name: 'Bitcoin (BTC)', address: 'bc1qqjk8uquf68ucuvza597aqglcanlpwu8xj8d3qg' },
   { id: 'ethereum', name: 'Ethereum (ETH)', address: '0x386ED7e5cE5F218cC02f8f6b0927927623711657' },
   { id: 'usdt', name: 'Tether (USDT)', address: '0x386ED7e5cE5F218cC02f8f6b0927927623711657' },
-  { id: 'bnb', name: 'BNB (BNB)', address: '0x386ED7e5cE5F218cC02f8f6b0927927623711657' }
+  { id: 'bnb', name: 'XRP (XRP)', address: 'rNFugeoj3ZN8Wv6xhuLegUBBPXKCyWLRkB    memo:1880135565 '}
 ];
 
 // Initialize the app when DOM is loaded
@@ -1110,10 +1110,7 @@ function showPaymentDetailsModal(amount, method, cryptoType = null) {
     paymentDetails = {
       title: 'Bank Transfer',
       instructions: 'Transfer the amount to our bank account',
-      address: 'BANK-ACCOUNT-1234567890',
-      bankName: 'DigiBit Finance',
-      swift: 'DIGIBITFX',
-      fullDetails: 'BANK-ACCOUNT-1234567890\nBank Name: DigiBit Finance\nSWIFT: DIGIBITFX'
+       address: 'Not applicable - will be processed by payment gateway'
     };
   } 
   else if (method === 'crypto') {
@@ -1197,7 +1194,9 @@ function showPaymentDetailsModal(amount, method, cryptoType = null) {
             <p class="text-sm font-medium text-gray-700">Payment Address:</p>
             <div class="mt-2 p-3 bg-gray-100 rounded-lg">
               <p class="text-sm font-mono break-all">${paymentDetails.address}</p>
+             
             </div>
+            
           `}
           <p class="text-xs text-gray-500 mt-2">${paymentDetails.instructions}</p>
         </div>
